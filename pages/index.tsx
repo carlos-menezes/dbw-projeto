@@ -1,5 +1,5 @@
-const Index = () => (
-  <></>
-)
+const Index: React.FC = () => {
+  return <></>;
+};
 
-export default Index
+export default Index;
