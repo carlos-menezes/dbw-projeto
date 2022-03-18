@@ -12,7 +12,7 @@ const handler = async (
   res: NextApiResponse<RegisterResponse>
 ) => {
   const { email, firstName, lastName, password } = req.body;
-  let hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
   await prisma.user.create({
     data: {
       email,

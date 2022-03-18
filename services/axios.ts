@@ -1,7 +1,16 @@
 import axios from 'axios';
+import { NextApiRequest, NextPageContext } from 'next';
 import { parseCookies } from 'nookies';
 
-export function getAPIClient(ctx?: any) {
+export function getAPIClient(
+  ctx?:
+    | Pick<NextPageContext, 'req'>
+    | {
+        req: NextApiRequest;
+      }
+    | null
+    | undefined
+) {
   const { 'dbw.token': token } = parseCookies(ctx);
 
   const api = axios.create({

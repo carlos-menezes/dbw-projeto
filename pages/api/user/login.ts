@@ -20,7 +20,7 @@ const handler = async (
       }
     })
     .then(async (user) => {
-      let isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (isPasswordValid) {
         const authToken = generateAuthToken({ user });
 
@@ -31,7 +31,7 @@ const handler = async (
         return res.status(401).json({ message: 'Invalid password.' });
       }
     })
-    .catch((_) => {
+    .catch(() => {
       return res.status(401).json({ message: 'Invalid email.' });
     });
 };
