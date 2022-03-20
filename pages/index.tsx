@@ -1,5 +1,7 @@
+import Layout from '../components/Layout';
+
 const Index: React.FC = () => {
-  return <></>;
+  return <Layout></Layout>;
 };
 
 export default Index;
