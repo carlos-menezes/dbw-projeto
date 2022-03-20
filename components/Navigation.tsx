@@ -1,7 +1,6 @@
 import Login20 from '@carbon/icons-react/lib/login/20';
 import Add20 from '@carbon/icons-react/lib/add/20';
 import User20 from '@carbon/icons-react/lib/user/20';
-import AppSwitcher20 from '@carbon/icons-react/lib/app-switcher/20';
 
 import {
   Header,
@@ -9,17 +8,27 @@ import {
   HeaderGlobalAction,
   HeaderGlobalBar,
   HeaderNavigation,
-  HeaderMenu,
   HeaderMenuItem,
-  HeaderPanel
+  HeaderPanel,
+  Switcher,
+  SwitcherItem
 } from 'carbon-components-react/lib/components/UIShell';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { Button } from 'carbon-components-react';
 
 const Navigation: React.FC = () => {
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { login, user, isAuthenticated } = useContext(AuthContext);
   const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const a = async () => {
+      login({
+        email: 'carlos-menezes212@hotmail.com',
+        password: '123123123'
+      });
+    };
+    a();
+  }, []);
 
   return (
     <Header aria-label="ProtonX Help">
@@ -40,14 +49,22 @@ const Navigation: React.FC = () => {
           </HeaderGlobalAction>
         )}
         {isAuthenticated && (
-          <HeaderGlobalAction
-            aria-label="Control Panel"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <User20 />
-          </HeaderGlobalAction>
+          <>
+            <HeaderGlobalAction
+              aria-label="Control Panel"
+              onClick={() => setExpanded(!expanded)}
+            >
+              <User20 />
+            </HeaderGlobalAction>
+            <HeaderPanel expanded={expanded} aria-label="Control Panel Options">
+              <Switcher>
+                <SwitcherItem>
+                  Logged in as {user.firstName.concat(' ', user.lastName)}
+                </SwitcherItem>
+              </Switcher>
+            </HeaderPanel>
+          </>
         )}
-        <HeaderPanel expanded={expanded} />
       </HeaderGlobalBar>
     </Header>
   );
