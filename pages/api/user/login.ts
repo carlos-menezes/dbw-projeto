@@ -25,7 +25,8 @@ const handler = async (
         const authToken = generateAuthToken({ user });
 
         return res.status(200).json({
-          authToken
+          authToken,
+          user
         });
       } else {
         return res.status(401).json({ message: 'Invalid password.' });

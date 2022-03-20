@@ -34,7 +34,11 @@ export const AuthProvider: React.FC = ({ children }) => {
   useEffect(() => {
     const { [AUTH_TOKEN]: token } = parseCookies();
 
+    console.log(token);
+
     if (token) {
+      console.log(token);
+
       const { user } = jwt_decode<{ user: User }>(token);
       setUser(user);
     }
@@ -46,12 +50,11 @@ export const AuthProvider: React.FC = ({ children }) => {
         email,
         password
       })
-      .then(({ data: { authToken } }) => {
+      .then(({ data: { authToken, user } }) => {
         setCookie(undefined, AUTH_TOKEN, authToken, {
           maxAge: 60 * 60 * 1
         });
         api.defaults.headers['Authorization'] = `Bearer ${authToken}`;
-        const user = jwt_decode<User>(authToken);
         setUser(user);
       })
       .catch((error: AxiosError<LoginResponse>) => {
