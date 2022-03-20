@@ -2,7 +2,7 @@ import React from 'react';
 import { AppProps } from 'next/app';
 import { AuthProvider } from '../contexts/AuthContext';
 
-import '../styles.scss';
+import '../assets/scss/styles.scss';
 
 const App: React.FC<AppProps> = ({ Component, pageProps }) => (
   <AuthProvider>
