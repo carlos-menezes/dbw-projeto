@@ -84,8 +84,12 @@ export const AuthProvider: React.FC = ({ children }) => {
   };
 
   const logout = async () => {
-    destroyCookie(undefined, AUTH_TOKEN);
-    setUser(null);
+    await api
+      .post('/api/user/logout')
+      .then(() => {
+        setUser(null);
+      })
+      .catch(() => console.error('An error occurred'));
   };
 
   return (
