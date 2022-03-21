@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "type-check": "tsc",
-    "lint": "eslint . --ext .ts --fix"
+    "lint": "eslint . --ext .ts --fix",
+    "compile-css": "npx node-sass assets/scss/styles.scss > assets/css/styles.css"
   },
   "dependencies": {
     "@prisma/client": "^3.11.0",
