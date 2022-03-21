@@ -18526,3 +18526,8 @@ a.bx--navigation-link:focus {
   position: relative;
   overflow: hidden;
   width: 100vw; }
+
+
+body {
+    min-height: 100vh;
+}
