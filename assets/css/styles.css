@@ -18523,6 +18523,6 @@ a.bx--navigation-link:focus {
   display: block; }
 
 .bx--header {
-  position: absolute;
+  position: relative;
   overflow: hidden;
   width: 100vw; }

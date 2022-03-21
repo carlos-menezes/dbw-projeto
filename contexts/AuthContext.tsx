@@ -1,9 +1,8 @@
 import { createContext, useEffect, useState } from 'react';
-import { parseCookies, setCookie, destroyCookie } from 'nookies';
+import { parseCookies } from 'nookies';
 import { User } from '.prisma/client';
 import Router from 'next/router';
 import { AxiosError } from 'axios';
-import jwt_decode from 'jwt-decode';
 
 import {
   LoginRequest,
@@ -13,6 +12,8 @@ import {
 } from '../types/';
 import { api } from '../services/api';
 import { AUTH_TOKEN } from '../utils/constants';
+import { verifyJWT } from '../utils/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -34,12 +35,8 @@ export const AuthProvider: React.FC = ({ children }) => {
   useEffect(() => {
     const { [AUTH_TOKEN]: token } = parseCookies();
 
-    console.log(token);
-
     if (token) {
-      console.log(token);
-
-      const { user } = jwt_decode<{ user: User }>(token);
+      const { user } = verifyJWT(token) as JwtPayload;
       setUser(user);
     }
   }, []);
@@ -50,11 +47,9 @@ export const AuthProvider: React.FC = ({ children }) => {
         email,
         password
       })
-      .then(({ data: { authToken, user } }) => {
-        setCookie(undefined, AUTH_TOKEN, authToken, {
-          maxAge: 60 * 60 * 1
-        });
-        api.defaults.headers['Authorization'] = `Bearer ${authToken}`;
+      .then(({ data: { user } }) => {
+        const { [AUTH_TOKEN]: token } = parseCookies();
+        api.defaults.headers['Authorization'] = `Bearer ${token}`;
         setUser(user);
       })
       .catch((error: AxiosError<LoginResponse>) => {

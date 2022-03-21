@@ -1,20 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { parseCookies, setCookie } from "nookies";
-import { AUTH_TOKEN } from "../../../utils/constants";
+import { NextApiRequest, NextApiResponse } from 'next';
+import nookies from 'nookies';
+import { AUTH_TOKEN } from '../../../utils/constants';
 
-const handler = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
-  const { [AUTH_TOKEN]: token } = parseCookies({ req });
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { [AUTH_TOKEN]: token } = nookies.get({ req });
   if (token) {
-      setCookie({ res }, AUTH_TOKEN, "");
-      return res.status(200);
+    nookies.destroy({ res }, AUTH_TOKEN, {
+      path: '/'
+    });
+    return res.status(200).end();
   }
 
   return res.status(401).json({
-      message: 'Token not found'
-  })
+    message: 'Token not found'
+  });
 };
 
 export default handler;

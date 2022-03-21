@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { LoginRequest, LoginResponse } from '../../../types';
 import { generateAuthToken } from '../../../utils/jwt';
+import nookies from 'nookies';
+import { AUTH_TOKEN } from '../../../utils/constants';
 
 interface LoginRequestBody extends NextApiRequest {
   body: LoginRequest;
@@ -23,9 +25,9 @@ const handler = async (
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (isPasswordValid) {
         const authToken = generateAuthToken({ user });
+        nookies.set({ res }, AUTH_TOKEN, authToken);
 
         return res.status(200).json({
-          authToken,
           user
         });
       } else {
