@@ -1,8 +1,13 @@
-import { Column, Grid, Link, Row } from 'carbon-components-react';
+import { Column, Grid, Row } from 'carbon-components-react';
+import { CSSProperties } from 'react';
+
+const gridStyle: CSSProperties = {
+  height: '3rem'
+};
 
 const Footer: React.FC = () => {
   return (
-    <Grid>
+    <Grid fullWidth style={gridStyle}>
       <Row>
         <Column>
           <p>ProtonX &copy; 2022</p>

@@ -1,14 +1,16 @@
 import Navigation from './Navigation';
-import styled from 'styled-components';
 import Footer from './Footer';
+import { CSSProperties } from 'react';
 
-const Content = styled.div``;
+const mainStyle: CSSProperties = {
+  minHeight: 'calc(100vh - 6rem)'
+};
 
 const Layout: React.FC = ({ children }) => {
   return (
     <>
       <Navigation />
-      <Content>{children}</Content>
+      <main style={mainStyle}>{children}</main>
       <Footer />
     </>
   );
