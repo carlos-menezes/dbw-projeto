@@ -18521,3 +18521,8 @@ a.bx--navigation-link:focus {
 
 .bx--header__nav {
   display: block; }
+
+.bx--header {
+  position: absolute;
+  overflow: hidden;
+  width: 100vw; }
