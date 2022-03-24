@@ -1,8 +1,10 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 import { TokenRequest, TokenResponse } from '../../../types';
 import { verifyJWT } from '../../../utils/jwt';
+import { prisma } from '../../../services/db';
 
 interface TokenRequestBody extends NextApiRequest {
   body: TokenRequest;

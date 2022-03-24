@@ -45,11 +45,10 @@ export const AuthProvider: React.FC = ({ children }) => {
             token
           });
           setUser(user);
-        } catch (_) {
-        } finally {
-          setLoading(false);
-        }
+        } catch (_) {}
       }
+
+      setLoading(false);
     };
 
     getUserFromToken();

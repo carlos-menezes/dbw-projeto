@@ -7,14 +7,11 @@ import {
   Row,
   TextInput
 } from 'carbon-components-react';
-import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
-import { parseCookies } from 'nookies';
 import { CSSProperties, FormEvent, useContext, useState } from 'react';
 
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
-import { AUTH_TOKEN } from '../utils/constants';
 
 const gridStyle: CSSProperties = {
   maxWidth: '672px'
@@ -28,20 +25,25 @@ const formStyle: CSSProperties = {
   rowGap: '20px'
 };
 
-const Login = () => {
-  const { login, loading } = useContext(AuthContext);
+const Register = () => {
+  const { register, loading } = useContext(AuthContext);
   const router = useRouter();
 
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    login({
+    register({
       email,
-      password
+      password,
+      firstName,
+      lastName
     })
       .then(() => {
         router.push('/');
@@ -52,14 +54,36 @@ const Login = () => {
   };
 
   return (
-    <Layout title="Login">
+    <Layout title="Register">
       <Grid style={gridStyle}>
         <Row>
           <Column>
-            <h1>Login</h1>
+            <h1>Register</h1>
           </Column>
         </Row>
         <Form style={formStyle} onSubmit={(e) => handleFormSubmission(e)}>
+          <Row>
+            <Column>
+              <TextInput
+                required
+                id={'firstName'}
+                labelText={'First Name'}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                }}
+              />
+            </Column>
+            <Column>
+              <TextInput
+                required
+                id={'lastName'}
+                labelText={'Last Name'}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                }}
+              />
+            </Column>
+          </Row>
           <Row>
             <Column>
               <TextInput
@@ -78,8 +102,6 @@ const Login = () => {
             <Column>
               <PasswordInput
                 required
-                invalid={error?.includes('password')}
-                invalidText={error}
                 id={'password'}
                 labelText={'Password'}
                 onChange={(e) => {
@@ -95,8 +117,8 @@ const Login = () => {
               </Button>
             </Column>
             <Column>
-              <Button kind="ghost" type="button" href="/register">
-                I don't have an account
+              <Button kind="ghost" type="button" href="/login">
+                I already have an account
               </Button>
             </Column>
           </Row>
@@ -106,21 +128,4 @@ const Login = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { [AUTH_TOKEN]: token } = parseCookies(context);
-
-  if (token) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false
-      }
-    };
-  }
-
-  return {
-    props: {}
-  };
-};
-
-export default Login;
+export default Register;

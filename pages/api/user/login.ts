@@ -5,6 +5,7 @@ import { LoginRequest, LoginResponse } from '../../../types';
 import { generateAuthToken } from '../../../utils/jwt';
 import nookies from 'nookies';
 import { AUTH_TOKEN } from '../../../utils/constants';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 interface LoginRequestBody extends NextApiRequest {
   body: LoginRequest;
@@ -20,12 +21,12 @@ export default async (
     const user = await prisma.user.findUnique({
       where: { email }
     });
-
     if (!user) {
       return res.status(401).json({
-        error: 'Invalid email'
+        error: 'Invalid email.'
       });
     }
+
     const validPassword = await bcrypt.compare(password, user.password);
     if (validPassword) {
       const authToken = generateAuthToken({ user });
@@ -38,10 +39,12 @@ export default async (
       });
     } else {
       return res.status(401).json({
-        error: 'Invalid password'
+        error: 'Invalid password.'
       });
     }
   } catch (e) {
-    throw new Error('Missing field(s) `email` and/or `password`');
+    if (e instanceof PrismaClientKnownRequestError) {
+      throw new Error('Missing field(s) `email` and/or `password`.');
+    }
   }
 };

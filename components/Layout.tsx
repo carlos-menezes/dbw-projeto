@@ -17,6 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
     <>
       <Head>
         <title>{title} | ProtonX Help</title>
+        <link href="/favicon.ico" />
       </Head>
       <Navigation />
       <main style={mainStyle}>{children}</main>

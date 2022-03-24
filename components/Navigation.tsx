@@ -1,6 +1,6 @@
 import Login20 from '@carbon/icons-react/lib/login/20';
 import Add20 from '@carbon/icons-react/lib/add/20';
-import User20 from '@carbon/icons-react/lib/user/20';
+import Menu20 from '@carbon/icons-react/lib/menu/20';
 
 import {
   Header,
@@ -23,7 +23,7 @@ const headerStyle: CSSProperties = {
 };
 
 const Navigation: React.FC = () => {
-  const { logout, user, isAuthenticated } = useContext(AuthContext);
+  const { logout, user, isAuthenticated, loading } = useContext(AuthContext);
   const [controlPanelExpanded, setControlPanelExpanded] = useState(false);
 
   useEffect(() => {
@@ -46,11 +46,11 @@ const Navigation: React.FC = () => {
           <Add20 />
         </HeaderGlobalAction>
         {!isAuthenticated && (
-          <HeaderGlobalAction aria-label="Login">
-            <Link href="/login">
+          <Link href="/login">
+            <HeaderGlobalAction aria-label="Login">
               <Login20 />
-            </Link>
-          </HeaderGlobalAction>
+            </HeaderGlobalAction>
+          </Link>
         )}
         {isAuthenticated && (
           <>
@@ -58,19 +58,21 @@ const Navigation: React.FC = () => {
               aria-label="Control Panel"
               onClick={() => setControlPanelExpanded(!controlPanelExpanded)}
             >
-              <User20 />
+              <Menu20 />
             </HeaderGlobalAction>
             <HeaderPanel
               expanded={controlPanelExpanded}
               aria-label="Control Panel Options"
             >
               <Switcher aria-label="Control Panel Options">
-                <SwitcherItem>
+                <SwitcherItem aria-label="User name">
                   Logged in as {user?.firstName?.concat(' ', user.lastName)}
                 </SwitcherItem>
                 <SwitcherDivider />
-                <SwitcherItem>Dashboard</SwitcherItem>
-                <SwitcherItem onClick={logout}>Logout</SwitcherItem>
+                <SwitcherItem aria-label="Dashboard">Dashboard</SwitcherItem>
+                <SwitcherItem aria-label="Logout" onClick={logout}>
+                  Logout
+                </SwitcherItem>
               </Switcher>
             </HeaderPanel>
           </>
