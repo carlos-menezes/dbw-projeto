@@ -10,33 +10,38 @@ interface LoginRequestBody extends NextApiRequest {
   body: LoginRequest;
 }
 
-const handler = async (
+export default async (
   req: LoginRequestBody,
   res: NextApiResponse<LoginResponse>
 ) => {
   const { email, password } = req.body;
-  await prisma.user
-    .findUnique({
-      where: {
-        email
-      }
-    })
-    .then(async (user) => {
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (isPasswordValid) {
-        const authToken = generateAuthToken({ user });
-        nookies.set({ res }, AUTH_TOKEN, authToken);
 
-        return res.status(200).json({
-          user
-        });
-      } else {
-        return res.status(401).json({ message: 'Invalid password.' });
-      }
-    })
-    .catch(() => {
-      return res.status(401).json({ message: 'Invalid email.' });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email }
     });
-};
 
-export default handler;
+    if (!user) {
+      return res.status(401).json({
+        error: 'Invalid email'
+      });
+    }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (validPassword) {
+      const authToken = generateAuthToken({ user });
+      nookies.set({ res }, AUTH_TOKEN, authToken, {
+        path: '/',
+        maxAge: 60 * 60 * 1 // 1h
+      });
+      return res.status(200).json({
+        user
+      });
+    } else {
+      return res.status(401).json({
+        error: 'Invalid password'
+      });
+    }
+  } catch (e) {
+    throw new Error('Missing field(s) `email` and/or `password`');
+  }
+};

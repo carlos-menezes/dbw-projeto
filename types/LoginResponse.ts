@@ -2,7 +2,7 @@ import { User } from '@prisma/client';
 
 type LoginResponse = {
   user?: User;
-  message?: string;
+  error?: string;
 };
 
 export default LoginResponse;
