@@ -1,8 +1,8 @@
 import { User } from '@prisma/client';
 
-type RegisterResponse = {
+type TokenResponse = {
   user?: User;
   error?: string;
 };
 
-export default RegisterResponse;
+export default TokenResponse;

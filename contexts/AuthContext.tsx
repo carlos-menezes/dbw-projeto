@@ -1,15 +1,14 @@
-import { createContext, useEffect, useState } from 'react';
-import { parseCookies, setCookie, destroyCookie } from 'nookies';
+import { createContext, useEffect, useMemo, useState } from 'react';
+import { parseCookies } from 'nookies';
 import { User } from '.prisma/client';
-import Router from 'next/router';
-import { AxiosError } from 'axios';
-import jwt_decode from 'jwt-decode';
+import axios, { AxiosError } from 'axios';
 
 import {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
-  RegisterResponse
+  RegisterResponse,
+  TokenResponse
 } from '../types/';
 import { api } from '../services/api';
 import { AUTH_TOKEN } from '../utils/constants';
@@ -20,43 +19,59 @@ type AuthContextType = {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
-  error: string | null;
+  loading: boolean;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
 
 export const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const { [AUTH_TOKEN]: token } = parseCookies();
+    const getUserFromToken = async () => {
+      setLoading(true);
+      const { [AUTH_TOKEN]: token } = parseCookies();
 
-    if (token) {
-      const { user } = jwt_decode<{ user: User }>(token);
-      setUser(user);
-    }
+      if (token) {
+        try {
+          const {
+            data: { user }
+          } = await api.post<TokenResponse>('/api/user/from-token', {
+            token
+          });
+          setUser(user);
+        } catch (_) {}
+      }
+
+      setLoading(false);
+    };
+
+    getUserFromToken();
   }, []);
 
   const login = async ({ email, password }: LoginRequest) => {
-    await api
-      .post<LoginResponse>('/api/user/login', {
+    setLoading(true);
+    try {
+      const {
+        data: { user }
+      } = await api.post<LoginResponse>('/api/user/login', {
         email,
         password
-      })
-      .then(({ data: { authToken } }) => {
-        setCookie(undefined, AUTH_TOKEN, authToken, {
-          maxAge: 60 * 60 * 1
-        });
-        api.defaults.headers['Authorization'] = `Bearer ${authToken}`;
-        const user = jwt_decode<User>(authToken);
-        setUser(user);
-      })
-      .catch((error: AxiosError<LoginResponse>) => {
-        setError(error.response!.data.message);
       });
+      const { [AUTH_TOKEN]: token } = parseCookies();
+      api.defaults.headers['Authorization'] = `Bearer ${token}`;
+      setUser(user);
+    } catch (err) {
+      const error = err as Error | AxiosError;
+      if (axios.isAxiosError(error)) {
+        throw new Error((error.response?.data as TokenResponse).error);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async ({
@@ -65,31 +80,49 @@ export const AuthProvider: React.FC = ({ children }) => {
     email,
     password
   }: RegisterRequest) => {
-    await api
-      .post<RegisterResponse>('/api/user/register', {
-        firstName,
-        lastName,
+    setLoading(true);
+    try {
+      const {
+        data: { user }
+      } = await api.post<RegisterResponse>('/api/user/register', {
         email,
-        password
-      })
-      .then(() => {
-        Router.push('/login');
-      })
-      .catch((error: AxiosError<RegisterResponse>) => {
-        setError(error.response!.data.message);
+        password,
+        firstName,
+        lastName
       });
+      const { [AUTH_TOKEN]: token } = parseCookies();
+      api.defaults.headers['Authorization'] = `Bearer ${token}`;
+      setUser(user);
+    } catch (err) {
+      const error = err as Error | AxiosError;
+      if (axios.isAxiosError(error)) {
+        throw new Error((error.response?.data as RegisterResponse).error);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    destroyCookie(undefined, AUTH_TOKEN);
-    setUser(null);
+    await api
+      .post('/api/user/logout')
+      .then(() => {
+        setUser(null);
+      })
+      .catch(() => console.error('An error occurred'));
   };
 
-  return (
-    <AuthContext.Provider
-      value={{ isAuthenticated, user, login, register, error, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({
+      isAuthenticated,
+      loading,
+      login,
+      register,
+      logout,
+      user
+    }),
+    [user, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,6 +1,8 @@
+import { User } from '@prisma/client';
+
 type LoginResponse = {
-  authToken?: string;
-  message?: string;
+  user?: User;
+  error?: string;
 };
 
 export default LoginResponse;
