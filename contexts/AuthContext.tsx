@@ -12,8 +12,6 @@ import {
 } from '../types/';
 import { api } from '../services/api';
 import { AUTH_TOKEN } from '../utils/constants';
-import { verifyJWT } from '../utils/jwt';
-import { JwtPayload } from 'jsonwebtoken';
 
 type AuthContextType = {
   isAuthenticated: boolean;

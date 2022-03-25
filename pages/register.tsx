@@ -7,11 +7,14 @@ import {
   Row,
   TextInput
 } from 'carbon-components-react';
+import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
+import { parseCookies } from 'nookies';
 import { CSSProperties, FormEvent, useContext, useState } from 'react';
 
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
+import { AUTH_TOKEN } from '../utils/constants';
 
 const gridStyle: CSSProperties = {
   maxWidth: '672px'
@@ -126,6 +129,23 @@ const Register = () => {
       </Grid>
     </Layout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { [AUTH_TOKEN]: token } = parseCookies(context);
+
+  if (token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    };
+  }
+
+  return {
+    props: {}
+  };
 };
 
 export default Register;
