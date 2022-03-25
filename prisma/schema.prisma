@@ -18,3 +18,9 @@ model User {
   lastName  String
   password String
 }
+
+model Question {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  description String
+}
