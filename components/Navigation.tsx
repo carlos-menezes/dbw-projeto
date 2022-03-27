@@ -42,8 +42,10 @@ const Navigation: React.FC = () => {
         <HeaderMenuItem href="/live">Live Chat</HeaderMenuItem>
       </HeaderNavigation>
       <HeaderGlobalBar>
-        <HeaderGlobalAction aria-label="Create Ticket" onClick={() => {}}>
-          <Add20 />
+        <HeaderGlobalAction aria-label="Create Ticket">
+          <Link href="/ticket/create">
+            <Add20 />
+          </Link>
         </HeaderGlobalAction>
         {!isAuthenticated && (
           <Link href="/login">

@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["mongoDb"]
 }
 
@@ -12,15 +12,64 @@ datasource db {
 }
 
 model User {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  email String @unique
-  firstName  String
-  lastName  String
-  password String
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  email          String          @unique
+  firstName      String
+  lastName       String
+  password       String
+  tickets        Ticket[]
+  ticketMessages TicketMessage[]
+}
+
+model Category {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  tickets Ticket[]
 }
 
 model Question {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  title String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
   description String
+}
+
+model Ticket {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  status      TicketStatus @default(OPEN)
+  user        User?        @relation(fields: [userId], references: [id])
+  userId      String?      @db.ObjectId
+  email       String
+  createdAt   DateTime     @default(now())
+
+  messages TicketMessage[]
+
+  file   File?
+  fileId String? @db.ObjectId
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @db.ObjectId
+}
+
+model TicketMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @db.ObjectId
+  Ticket    Ticket?  @relation(fields: [ticketId], references: [id])
+  ticketId  String?  @db.ObjectId
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
+  AVAILABLE
+}
+
+model File {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  data     String
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+  ticketId String @unique
 }

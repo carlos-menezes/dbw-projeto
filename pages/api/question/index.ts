@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { QuestionRequest, QuestionResponse } from '../../../types';
 
 import { prisma } from '../../../services/db';
+import QuestionRequest from './types/QuestionRequest';
+import QuestionResponse from './types/QuestionResponse';
 
 interface QuestionRequestBody extends NextApiRequest {
   body: QuestionRequest;
