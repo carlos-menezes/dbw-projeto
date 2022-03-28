@@ -82,7 +82,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     try {
       const {
         data: { user }
-      } = await api.post<RegisterResponse>('/user/register', {
+      } = await api.post<RegisterResponse>('/api/user/register', {
         email,
         password,
         firstName,
