@@ -43,17 +43,13 @@ const formStyle: CSSProperties = {
   rowGap: '20px'
 };
 
-const ticketCreatedRowStyle: CSSProperties = {
-  marginTop: '20px',
-  backgroundColor: colors.green[30]
-};
-
 type FormData = {
   title: string;
   description: string;
   email: string;
   categoryId: string;
   file?: File;
+  error?: string;
 };
 
 const Create: React.FC = () => {
@@ -223,8 +219,8 @@ const Create: React.FC = () => {
             <Row>
               <Column>
                 <InlineNotification
-                  kind={'success'}
-                  title={'Ticket created!'}
+                  kind={formData.error ? 'error' : 'success'}
+                  title={formData.error ? formData.error : 'Ticket created!'}
                   subtitle={
                     <Link href={`/ticket/${ticketId}`}>
                       Click here to check the status.
