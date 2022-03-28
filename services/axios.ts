@@ -14,11 +14,7 @@ export function getAPIClient(
   const { 'dbw.token': token } = parseCookies(ctx);
 
   const api = axios.create({
-    baseURL: process.env.API_URL
-  });
-
-  api.interceptors.request.use((config) => {
-    return config;
+    baseURL: process.env.BASE_URL
   });
 
   if (token) {
