@@ -29,7 +29,6 @@ import Link from 'carbon-components-react/lib/components/UIShell/Link';
 import CategoryResponse from '../api/category/types/CategoryResponse';
 import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
 import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
-import { colors } from '@carbon/colors';
 
 const gridStyle: CSSProperties = {
   maxWidth: '672px'
@@ -59,7 +58,10 @@ const Create: React.FC = () => {
     ...({} as FormData),
     email: isAuthenticated ? user.email : ''
   } as FormData);
-  const [ticketId, setTicketId] = useState<string | null>(null);
+  const [ticketData, setTicketData] = useState<{
+    id: string;
+    commentCode: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -80,21 +82,25 @@ const Create: React.FC = () => {
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      const {
-        data: { id }
-      } = await api.post<TicketCreateResponse>('/api/ticket/create', {
+    api
+      .post<TicketCreateResponse>('/api/ticket/create', {
         title: formData.title,
         description: formData.description,
         email: formData.email,
         fileData: formData.file ? await formData.file.text() : null,
         categoryId: formData.categoryId
-      } as TicketCreateRequest);
-      setTicketId(id);
-    } catch (err) {
-      const { message: error } = err as Error;
-      setFormData((state) => ({ ...state, error }));
-    }
+      } as TicketCreateRequest)
+      .then(({ data: { id, commentCode } }) => {
+        setTicketData({
+          id,
+          commentCode
+        });
+        setFormData((state) => ({ ...state, error: null }));
+      })
+      .catch((err) => {
+        const { message: error } = err as Error;
+        setFormData((state) => ({ ...state, error }));
+      });
   };
 
   return (
@@ -208,22 +214,26 @@ const Create: React.FC = () => {
           <Row>
             <Column>
               <Button
-                disabled={loading || initialLoading || !!ticketId}
+                disabled={loading || initialLoading || !!ticketData}
                 type="submit"
               >
                 Submit
               </Button>
             </Column>
           </Row>
-          {ticketId && (
+          {ticketData && (
             <Row>
               <Column>
                 <InlineNotification
                   kind={formData.error ? 'error' : 'success'}
                   title={formData.error ? formData.error : 'Ticket created!'}
                   subtitle={
-                    <Link href={`/ticket/${ticketId}`}>
-                      Click here to check the status.
+                    <Link href={`/ticket/${ticketData.id}`}>
+                      Click here to check the status and use the code{' '}
+                      <span style={{ fontWeight: 'bold' }}>
+                        {ticketData.commentCode}
+                      </span>{' '}
+                      to comment.
                     </Link>
                   }
                 />

@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { randomBytes } from 'crypto';
 
 import { prisma } from '../../../services/db';
 import { Prisma } from '@prisma/client';
@@ -15,28 +16,31 @@ export default async (
 ) => {
   const { title, email, description, categoryId, fileData } = req.body;
   try {
-    let data: Prisma.TicketCreateInput = {
-      title,
-      email,
-      description,
-      category: {
-        connect: {
-          id: categoryId
-        }
+    const { id, commentCode } = await prisma.ticket.create({
+      data: {
+        title,
+        email,
+        description,
+        commentCode: randomBytes(3).toString('hex'),
+        category: {
+          connect: {
+            id: categoryId
+          }
+        },
+        file:
+          fileData === null
+            ? null
+            : {
+                create: {
+                  data: fileData
+                }
+              }
       }
-    };
-
-    // Only create a `File` entry if a file has been passed into the body
-    if (fileData) {
-      data.file.create.data = fileData;
-    }
-
-    const { id } = await prisma.ticket.create({
-      data
     });
 
     return res.status(200).json({
-      id
+      id,
+      commentCode
     });
   } catch (e) {
     return res.status(500).json({
