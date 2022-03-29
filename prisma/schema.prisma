@@ -29,11 +29,11 @@ model Category {
 }
 
 model Question {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String   @db.ObjectId
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  String?   @db.ObjectId
 }
 
 model Ticket {

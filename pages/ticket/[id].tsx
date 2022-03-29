@@ -391,7 +391,8 @@ const TicketId = () => {
                   )}
 
                   {/* If the user is authenticated or the code has been submitted, allow the user to comment on the ticket EXCEPT if the ticket has been closed. */}
-                  {(isTicketCreator || isAuthenticated) &&
+                  {(isTicketCreator ||
+                    (isAuthenticated && ticketData.userId === user.id)) &&
                     ticketData.status !== 'CLOSED' && (
                       <Form onSubmit={handleCommentFormSubmission}>
                         <Row>
