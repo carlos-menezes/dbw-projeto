@@ -12,11 +12,21 @@ export default async (
   req: TicketMessageUpdateBody,
   res: NextApiResponse<TicketMessageUpdateResponse>
 ) => {
-  const { id, data } = req.body;
+  const { ticketId, data, messageId } = req.body;
   try {
+    // Remove previous replies
+    await prisma.ticketMessage.updateMany({
+      where: {
+        ticketId
+      },
+      data: {
+        isReply: false
+      }
+    });
+
     await prisma.ticketMessage.update({
       where: {
-        id
+        id: messageId
       },
       data,
       select: {

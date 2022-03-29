@@ -73,7 +73,7 @@ const TicketMessageRow = styled(CCRow)`
       props.$reply
         ? colors.green[40]
         : props.$agent
-        ? colors.blue[40]
+        ? colors.blue[20]
         : colors.gray[10]};
   text-align: justify;
   display: flex;
@@ -141,9 +141,11 @@ const TicketId = () => {
       case 'OPEN':
       case 'ASSIGN':
         data.status = 'OPEN';
+        data.userId = user.id;
         break;
       case 'CLOSE':
         data.status = 'CLOSED';
+        data.userId = undefined;
         break;
     }
     api
@@ -163,7 +165,8 @@ const TicketId = () => {
   const updateTicketMessageReply = (id: string, isReply: boolean) => {
     api
       .patch<TicketMessageUpdateResponse>('/api/ticket/message/update', {
-        id,
+        messageId: id,
+        ticketId,
         data: {
           isReply
         }
@@ -363,6 +366,8 @@ const TicketId = () => {
                       <h4>Comments ({ticketData?.messages.length})</h4>
                     </Column>
                   </CommentsRow>
+
+                  {/* If user is not authenticated and the code hasn't been submitted yet, show the input. */}
                   {!isAuthenticated && !isTicketCreator && (
                     <Form onSubmit={(e) => handleCommentCodeFormSubmission(e)}>
                       <Row>
@@ -384,8 +389,9 @@ const TicketId = () => {
                       </Row>
                     </Form>
                   )}
-                  {(isTicketCreator ||
-                    (isAuthenticated && ticketData.userId === user.id)) &&
+
+                  {/* If the user is authenticated or the code has been submitted, allow the user to comment on the ticket EXCEPT if the ticket has been closed. */}
+                  {(isTicketCreator || isAuthenticated) &&
                     ticketData.status !== 'CLOSED' && (
                       <Form onSubmit={handleCommentFormSubmission}>
                         <Row>
@@ -412,6 +418,8 @@ const TicketId = () => {
                         </Row>
                       </Form>
                     )}
+
+                  {/* If the agent is authenticated and the ticket hasn't been assigned, prompt the agent to assign themselves the ticket. */}
                   {isAuthenticated && ticketData.userId === null && (
                     <Row>
                       <Column>
@@ -420,6 +428,7 @@ const TicketId = () => {
                       </Column>
                     </Row>
                   )}
+
                   {ticketData?.messages
                     .sort((a, _b) => (a.isReply ? -1 : 0)) // Pin the reply, if it exists
                     .map((m: TicketMessage & { user: User }) => (
