@@ -1,16 +1,11 @@
 import { prisma } from '../../../services/db';
 import bcrypt from 'bcryptjs';
-import {
-  GetServerSideProps,
-  GetStaticProps,
-  NextApiRequest,
-  NextApiResponse
-} from 'next';
-import { RegisterRequest, RegisterResponse } from '../../../types';
+import { GetServerSideProps, NextApiRequest, NextApiResponse } from 'next';
 import nookies from 'nookies';
 import { AUTH_TOKEN } from '../../../utils/constants';
 import { generateAuthToken } from '../../../utils/jwt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import RegisterRequest from './types/RegisterRequest';
+import RegisterResponse from './types/RegisterResponse';
 
 interface RegisterRequestBody extends NextApiRequest {
   body: RegisterRequest;
@@ -49,8 +44,6 @@ export default async (
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { [AUTH_TOKEN]: token } = nookies.get(context);
-
-  console.log(token);
 
   return {
     props: {}

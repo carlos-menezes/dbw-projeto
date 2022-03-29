@@ -28,16 +28,22 @@ const formStyle: CSSProperties = {
   rowGap: '20px'
 };
 
+type FormData = {
+  email: string;
+  password: string;
+  error?: string;
+};
+
 const Login = () => {
   const { login, loading } = useContext(AuthContext);
   const router = useRouter();
 
-  const [email, setEmail] = useState<string | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({} as FormData);
 
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const { email, password } = formData;
 
     login({
       email,
@@ -46,8 +52,9 @@ const Login = () => {
       .then(() => {
         router.push('/');
       })
-      .catch((error: Error) => {
-        setError(error.message);
+      .catch((err: Error) => {
+        const { message: error } = err;
+        setFormData((state) => ({ ...state, error }));
       });
   };
 
@@ -64,12 +71,15 @@ const Login = () => {
             <Column>
               <TextInput
                 required
-                invalid={error?.includes('email')}
-                invalidText={error}
+                invalid={formData.error?.includes('email')}
+                invalidText={formData.error}
                 id={'email'}
                 labelText={'Email'}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setFormData((state) => ({
+                    ...state,
+                    email: e.target.value
+                  }));
                 }}
               />
             </Column>
@@ -78,12 +88,15 @@ const Login = () => {
             <Column>
               <PasswordInput
                 required
-                invalid={error?.includes('password')}
-                invalidText={error}
+                invalid={formData.error?.includes('password')}
+                invalidText={formData.error}
                 id={'password'}
                 labelText={'Password'}
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setFormData((state) => ({
+                    ...state,
+                    password: e.target.value
+                  }));
                 }}
               />
             </Column>

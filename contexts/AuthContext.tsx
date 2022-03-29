@@ -3,15 +3,13 @@ import { parseCookies } from 'nookies';
 import { User } from '.prisma/client';
 import axios, { AxiosError } from 'axios';
 
-import {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
-  TokenResponse
-} from '../types/';
 import { api } from '../services/api';
 import { AUTH_TOKEN } from '../utils/constants';
+import LoginRequest from '../pages/api/user/types/LoginRequest';
+import LoginResponse from '../pages/api/user/types/LoginResponse';
+import RegisterRequest from '../pages/api/user/types/RegisterRequest';
+import RegisterResponse from '../pages/api/user/types/RegisterResponse';
+import TokenResponse from '../pages/api/user/types/TokenResponse';
 
 type AuthContextType = {
   isAuthenticated: boolean;

@@ -1,11 +1,13 @@
-import { prisma } from '../../../services/db';
 import bcrypt from 'bcryptjs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { LoginRequest, LoginResponse } from '../../../types';
-import { generateAuthToken } from '../../../utils/jwt';
 import nookies from 'nookies';
+
+import { prisma } from '../../../services/db';
+import { generateAuthToken } from '../../../utils/jwt';
 import { AUTH_TOKEN } from '../../../utils/constants';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import LoginRequest from './types/LoginRequest';
+import LoginResponse from './types/LoginResponse';
 
 interface LoginRequestBody extends NextApiRequest {
   body: LoginRequest;
