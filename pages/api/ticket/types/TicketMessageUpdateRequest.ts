@@ -1,7 +1,8 @@
 import { TicketMessage } from '@prisma/client';
 
 type TicketMessageUpdateRequest = {
-  id: string;
+  ticketId: string;
+  messageId: string;
   data: TicketMessage;
 };
 
