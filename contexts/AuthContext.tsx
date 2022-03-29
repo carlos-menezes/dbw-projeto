@@ -103,7 +103,7 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   const logout = async () => {
     await api
-      .post('/user/logout')
+      .post('/api/user/logout')
       .then(() => {
         setUser(null);
       })

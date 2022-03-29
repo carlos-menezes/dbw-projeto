@@ -18,7 +18,10 @@ export default async (
       where: {
         id
       },
-      data
+      data,
+      select: {
+        Ticket: true
+      }
     });
     return res.status(200).end();
   } catch (e) {

@@ -22,15 +22,18 @@ model User {
 }
 
 model Category {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  title   String
-  tickets Ticket[]
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  tickets  Ticket[]
+  Question Question[]
 }
 
 model Question {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String   @db.ObjectId
 }
 
 model Ticket {
