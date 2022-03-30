@@ -1,5 +1,3 @@
-import { Question } from '@prisma/client';
-
 type QuestionUpdateResponse = {
   error?: string;
 };

@@ -22,8 +22,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import CategoryResponse from './api/category/types/CategoryResponse';
 import QuestionAllResponse from './api/question/types/QuestionAllResponse';
-import QuestionCreateRequest from './api/question/types/QuestionCreateRequest';
 import QuestionCreateResponse from './api/question/types/QuestionCreateResponse';
+import QuestionDeleteResponse from './api/question/types/QuestionDeleteResponse';
 import QuestionUpdateRequest from './api/question/types/QuestionUpdateRequest';
 
 const gridStyle: CSSProperties = {
@@ -62,8 +62,7 @@ const FAQ: React.FC = () => {
         } = await api.get<QuestionAllResponse>('/api/question/all');
         setQuestions(questions);
       } catch (err) {
-        const { message: error } = err as Error;
-        setError(error);
+        setError((err as AxiosError).response.data);
       } finally {
         setInitialLoading(false);
       }
@@ -72,7 +71,7 @@ const FAQ: React.FC = () => {
     initialFetch();
   }, []);
 
-  const updateTicketPinnedStatus = (id: string, pinned: boolean) => {
+  const updateQuestionPinnedStatus = (id: string, pinned: boolean) => {
     api
       .patch<QuestionCreateResponse>('/api/question/update', {
         id,
@@ -80,6 +79,17 @@ const FAQ: React.FC = () => {
           pinned
         }
       } as QuestionUpdateRequest)
+      .then(() => {
+        Router.reload();
+      })
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
+      });
+  };
+
+  const deleteQuestion = (id: string) => {
+    api
+      .delete<QuestionDeleteResponse>(`/api/question/delete/${id}`)
       .then(() => {
         Router.reload();
       })
@@ -143,13 +153,17 @@ const FAQ: React.FC = () => {
                                   <Button size="small" kind="primary">
                                     Edit
                                   </Button>
-                                  <Button size="small" kind="danger">
+                                  <Button
+                                    size="small"
+                                    kind="danger"
+                                    onClick={() => deleteQuestion(q.id)}
+                                  >
                                     Delete
                                   </Button>
                                   {q.pinned ? (
                                     <Button
                                       onClick={() =>
-                                        updateTicketPinnedStatus(q.id, false)
+                                        updateQuestionPinnedStatus(q.id, false)
                                       }
                                       size="small"
                                       kind="secondary"
@@ -161,7 +175,7 @@ const FAQ: React.FC = () => {
                                       size="small"
                                       kind="secondary"
                                       onClick={() =>
-                                        updateTicketPinnedStatus(q.id, true)
+                                        updateQuestionPinnedStatus(q.id, true)
                                       }
                                     >
                                       Pin

@@ -30,7 +30,7 @@ const handler = async (
     });
   } catch (e) {
     return res.status(500).json({
-      message: 'An error occurred inserting the question in the database'
+      error: 'An error occurred inserting the question in the database'
     });
   }
 };
