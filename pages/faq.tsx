@@ -1,4 +1,6 @@
+import { colors } from '@carbon/colors';
 import { Category, Question } from '@prisma/client';
+import { AxiosError } from 'axios';
 import {
   Accordion,
   AccordionItem,
@@ -10,6 +12,7 @@ import {
   Loading,
   Row
 } from 'carbon-components-react';
+import Router from 'next/router';
 import { CSSProperties, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -19,6 +22,9 @@ import { AuthContext } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import CategoryResponse from './api/category/types/CategoryResponse';
 import QuestionAllResponse from './api/question/types/QuestionAllResponse';
+import QuestionCreateRequest from './api/question/types/QuestionCreateRequest';
+import QuestionCreateResponse from './api/question/types/QuestionCreateResponse';
+import QuestionUpdateRequest from './api/question/types/QuestionUpdateRequest';
 
 const gridStyle: CSSProperties = {
   maxWidth: '672px'
@@ -29,6 +35,11 @@ const CategoryQuestionsRow = styled(Row)`
   flex-direction: column;
   row-gap: 10px;
   margin-bottom: 30px;
+`;
+
+const JustifiedParagraph = styled.p`
+  text-align: justify;
+  word-wrap: break-word;
 `;
 
 const FAQ: React.FC = () => {
@@ -61,6 +72,22 @@ const FAQ: React.FC = () => {
     initialFetch();
   }, []);
 
+  const updateTicketPinnedStatus = (id: string, pinned: boolean) => {
+    api
+      .patch<QuestionCreateResponse>('/api/question/update', {
+        id,
+        data: {
+          pinned
+        }
+      } as QuestionUpdateRequest)
+      .then(() => {
+        Router.reload();
+      })
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
+      });
+  };
+
   return (
     <Layout title="FAQ">
       {initialLoading ? (
@@ -91,17 +118,57 @@ const FAQ: React.FC = () => {
                   <Accordion>
                     {questions
                       .filter((q) => q.categoryId === c.id)
+                      .sort((a, _b) => (a.pinned ? -1 : 0)) // Pinned questions come first
                       .map((q) => (
-                        <AccordionItem title={q.title}>
+                        <AccordionItem
+                          title={q.title}
+                          // Pinned questions have a green top border
+                          style={{
+                            borderTop: `1px solid ${
+                              q.pinned ? colors.green[20] : colors.gray[20]
+                            }`
+                          }}
+                        >
                           <Row style={{ marginBottom: '10px' }}>
-                            <p contentEditable={true}>{q.description}</p>
+                            <Column>
+                              <JustifiedParagraph>
+                                {q.description}
+                              </JustifiedParagraph>
+                            </Column>
                           </Row>
                           {isAuthenticated && (
                             <Row>
-                              <ButtonSet>
-                                <Button kind="tertiary">Edit</Button>
-                                <Button kind="danger--tertiary">Delete</Button>
-                              </ButtonSet>
+                              <Column>
+                                <ButtonSet>
+                                  <Button size="small" kind="primary">
+                                    Edit
+                                  </Button>
+                                  <Button size="small" kind="danger">
+                                    Delete
+                                  </Button>
+                                  {q.pinned ? (
+                                    <Button
+                                      onClick={() =>
+                                        updateTicketPinnedStatus(q.id, false)
+                                      }
+                                      size="small"
+                                      kind="secondary"
+                                    >
+                                      Unpin
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      size="small"
+                                      kind="secondary"
+                                      onClick={() =>
+                                        updateTicketPinnedStatus(q.id, true)
+                                      }
+                                    >
+                                      Pin
+                                    </Button>
+                                  )}
+                                </ButtonSet>
+                              </Column>
                             </Row>
                           )}
                         </AccordionItem>

@@ -1,5 +1,6 @@
 import { colors } from '@carbon/colors';
 import { Category, Ticket, TicketMessage, User } from '@prisma/client';
+import { AxiosError } from 'axios';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -126,9 +127,8 @@ const TicketId = () => {
       .then(({ data: { id } }) => {
         setFaqEntryId(id);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -156,9 +156,8 @@ const TicketId = () => {
       .then(({ data: { ticket } }) => {
         setTicketData(ticket);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -174,9 +173,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -186,9 +184,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -203,9 +200,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -231,9 +227,8 @@ const TicketId = () => {
       .then(({ data: { ticket } }) => {
         setTicketData(ticket);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       })
       .finally(() => {
         setInitialLoading(false);
