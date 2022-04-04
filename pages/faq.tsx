@@ -139,22 +139,22 @@ const FAQ: React.FC = () => {
                             }`
                           }}
                         >
-                          <Row style={{ marginBottom: '10px' }}>
+                          <Row>
                             <Column>
                               <JustifiedParagraph>
                                 {q.description}
                               </JustifiedParagraph>
                             </Column>
                           </Row>
+
                           {isAuthenticated && (
-                            <Row>
+                            <ActionRow>
                               <Column>
                                 <ButtonSet>
                                   <Button size="small" kind="primary">
                                     Edit
                                   </Button>
                                   <Button
-                                    size="small"
                                     kind="danger"
                                     onClick={() => deleteQuestion(q.id)}
                                   >
@@ -165,14 +165,12 @@ const FAQ: React.FC = () => {
                                       onClick={() =>
                                         updateQuestionPinnedStatus(q.id, false)
                                       }
-                                      size="small"
                                       kind="secondary"
                                     >
                                       Unpin
                                     </Button>
                                   ) : (
                                     <Button
-                                      size="small"
                                       kind="secondary"
                                       onClick={() =>
                                         updateQuestionPinnedStatus(q.id, true)
@@ -183,7 +181,7 @@ const FAQ: React.FC = () => {
                                   )}
                                 </ButtonSet>
                               </Column>
-                            </Row>
+                            </ActionRow>
                           )}
                         </AccordionItem>
                       ))}
