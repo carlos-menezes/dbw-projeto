@@ -14,6 +14,7 @@ import { CSSProperties, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import Divider from '../components/Divider';
+import JustifiedParagraph from '../components/JustifiedParagraph';
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
 import { api } from '../services/api';
@@ -29,6 +30,10 @@ const CategoryQuestionsRow = styled(Row)`
   flex-direction: column;
   row-gap: 10px;
   margin-bottom: 30px;
+`;
+
+const ActionRow = styled(Row)`
+  margin-top: 10px;
 `;
 
 const FAQ: React.FC = () => {
@@ -93,16 +98,18 @@ const FAQ: React.FC = () => {
                       .filter((q) => q.categoryId === c.id)
                       .map((q) => (
                         <AccordionItem title={q.title}>
-                          <Row style={{ marginBottom: '10px' }}>
-                            <p contentEditable={true}>{q.description}</p>
+                          <Row>
+                            <JustifiedParagraph>
+                              {q.description}
+                            </JustifiedParagraph>
                           </Row>
                           {isAuthenticated && (
-                            <Row>
+                            <ActionRow>
                               <ButtonSet>
                                 <Button kind="tertiary">Edit</Button>
                                 <Button kind="danger--tertiary">Delete</Button>
                               </ButtonSet>
-                            </Row>
+                            </ActionRow>
                           )}
                         </AccordionItem>
                       ))}

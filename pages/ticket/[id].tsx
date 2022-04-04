@@ -17,17 +17,10 @@ import {
 } from 'carbon-components-react';
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
-import {
-  ChangeEventHandler,
-  FormEvent,
-  FormEventHandler,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Divider from '../../components/Divider';
+import JustifiedParagraph from '../../components/JustifiedParagraph';
 
 import Layout from '../../components/Layout';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -80,11 +73,6 @@ const TicketMessageRow = styled(CCRow)`
   justify-content: space-around;
   flex-direction: column;
   row-gap: 10px;
-`;
-
-const JustifiedParagraph = styled.p`
-  text-align: justify;
-  word-wrap: break-word;
 `;
 
 const statusTagColor = {
@@ -298,6 +286,7 @@ const TicketId = () => {
                     </JustifiedParagraph>
                   </Column>
                 </Row>
+
                 <>
                   {isAuthenticated && (
                     <Row>
@@ -347,6 +336,8 @@ const TicketId = () => {
                       </ActionColumn>
                     </Row>
                   )}
+
+                  {/* FAQ creation notification */}
                   {faqEntryId && (
                     <>
                       <Row>
@@ -360,7 +351,9 @@ const TicketId = () => {
                       </Row>
                     </>
                   )}
+
                   <Divider margin={30} />
+
                   <CommentsRow>
                     <Column>
                       <h4>Comments ({ticketData?.messages.length})</h4>
