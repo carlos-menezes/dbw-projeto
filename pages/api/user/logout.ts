@@ -1,8 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nookies from 'nookies';
 import { AUTH_TOKEN } from '../../../utils/constants';
+import LogoutResponse from './types/LogoutResponse';
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export default async (
+  req: NextApiRequest,
+  res: NextApiResponse<LogoutResponse>
+) => {
   const { [AUTH_TOKEN]: token } = nookies.get({ req });
   if (token) {
     nookies.destroy({ res }, AUTH_TOKEN, {
@@ -12,8 +16,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   return res.status(401).json({
-    message: 'Token not found'
+    error: 'Token not found'
   });
 };
-
-export default handler;

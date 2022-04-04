@@ -29,6 +29,7 @@ import Link from 'carbon-components-react/lib/components/UIShell/Link';
 import CategoryResponse from '../api/category/types/CategoryResponse';
 import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
 import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
+import { AxiosError } from 'axios';
 
 const gridStyle: CSSProperties = {
   maxWidth: '672px'
@@ -72,9 +73,8 @@ const Create: React.FC = () => {
         setCategories(categories);
         setFormData((state) => ({ ...state, categoryId: categories[0].id }));
       })
-      .catch((err) => {
-        const { message: error } = err as Error;
-        setFormData((state) => ({ ...state, error }));
+      .catch((err: AxiosError) => {
+        setFormData((state) => ({ ...state, error: err.response.data }));
       })
       .finally(() => setInitialLoading(false));
   }, []);
@@ -97,9 +97,8 @@ const Create: React.FC = () => {
         });
         setFormData((state) => ({ ...state, error: null }));
       })
-      .catch((err) => {
-        const { message: error } = err as Error;
-        setFormData((state) => ({ ...state, error }));
+      .catch((err: AxiosError) => {
+        setFormData((state) => ({ ...state, error: err.response.data }));
       });
   };
 

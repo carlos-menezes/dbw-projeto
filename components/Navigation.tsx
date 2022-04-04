@@ -17,6 +17,7 @@ import {
 import { CSSProperties, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import Link from 'next/link';
+import Router from 'next/router';
 
 const headerStyle: CSSProperties = {
   height: '3.5em'
@@ -42,17 +43,23 @@ const Navigation: React.FC = () => {
         <HeaderMenuItem href="/live">Live Chat</HeaderMenuItem>
       </HeaderNavigation>
       <HeaderGlobalBar>
-        <HeaderGlobalAction aria-label="Create Ticket">
-          <Link href="/ticket/create">
-            <Add20 />
-          </Link>
+        <HeaderGlobalAction
+          aria-label="Create Ticket"
+          onClick={() => {
+            Router.push('/ticket/create');
+          }}
+        >
+          <Add20 />
         </HeaderGlobalAction>
         {!isAuthenticated && (
-          <Link href="/login">
-            <HeaderGlobalAction aria-label="Login">
-              <Login20 />
-            </HeaderGlobalAction>
-          </Link>
+          <HeaderGlobalAction
+            aria-label="Login"
+            onClick={() => {
+              Router.push('/login');
+            }}
+          >
+            <Login20 />
+          </HeaderGlobalAction>
         )}
         {isAuthenticated && (
           <>

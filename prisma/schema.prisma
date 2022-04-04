@@ -34,6 +34,7 @@ model Question {
   description String
   category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  String?   @db.ObjectId
+  pinned      Boolean?  @default(false)
 }
 
 model Ticket {
