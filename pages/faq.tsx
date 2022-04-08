@@ -7,16 +7,17 @@ import {
   Button,
   ButtonSet,
   Column,
-  Grid,
   InlineNotification,
   Loading,
   Row
 } from 'carbon-components-react';
 import Router from 'next/router';
-import { CSSProperties, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import Divider from '../components/Divider';
+import FlexHeading from '../components/FlexHeading';
+import Grid from '../components/Grid';
 import JustifiedParagraph from '../components/JustifiedParagraph';
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
@@ -27,9 +28,15 @@ import QuestionCreateResponse from './api/question/types/QuestionCreateResponse'
 import QuestionDeleteResponse from './api/question/types/QuestionDeleteResponse';
 import QuestionUpdateRequest from './api/question/types/QuestionUpdateRequest';
 
-const gridStyle: CSSProperties = {
-  maxWidth: '672px'
+type PinnedAcordionItemProps = {
+  pinned: boolean;
 };
+
+const PinnedAcordionItem = styled(AccordionItem)`
+  border-top: 1px solid
+    ${(props: PinnedAcordionItemProps) =>
+      props.pinned ? colors.green[20] : colors.gray[20]};
+`;
 
 const CategoryQuestionsRow = styled(Row)`
   display: flex;
@@ -109,13 +116,15 @@ const FAQ: React.FC = () => {
           subtitle={error}
         />
       ) : (
-        <Grid style={gridStyle}>
+        <Grid>
           <Row>
-            <Column>
+            <FlexHeading>
               <h1>Frequently Asked Questions</h1>
-            </Column>
+            </FlexHeading>
           </Row>
+
           <Divider margin={20} />
+
           {categories.map((c) => (
             <CategoryQuestionsRow>
               <Row>
@@ -130,14 +139,10 @@ const FAQ: React.FC = () => {
                       .filter((q) => q.categoryId === c.id)
                       .sort((a, _b) => (a.pinned ? -1 : 0)) // Pinned questions come first
                       .map((q) => (
-                        <AccordionItem
+                        <PinnedAcordionItem
+                          pinned={q.pinned}
                           title={q.title}
                           // Pinned questions have a green top border
-                          style={{
-                            borderTop: `1px solid ${
-                              q.pinned ? colors.green[20] : colors.gray[20]
-                            }`
-                          }}
                         >
                           <Row>
                             <Column>
@@ -183,7 +188,7 @@ const FAQ: React.FC = () => {
                               </Column>
                             </ActionRow>
                           )}
-                        </AccordionItem>
+                        </PinnedAcordionItem>
                       ))}
                   </Accordion>
                 </Column>
