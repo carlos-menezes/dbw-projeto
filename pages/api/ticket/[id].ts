@@ -27,8 +27,6 @@ export default async (
       ticket
     });
   } catch (e) {
-    console.log(e);
-
     return res.status(500).json({
       error: 'An error occurred retrieving the ticket in the database'
     });

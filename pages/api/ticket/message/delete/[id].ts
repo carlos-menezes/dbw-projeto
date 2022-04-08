@@ -8,8 +8,6 @@ export default async (
   res: NextApiResponse<TicketMessageDeleteResponse>
 ) => {
   const id = req.query.id as string;
-  console.log('query: ' + req.query);
-
   try {
     await prisma.ticketMessage.delete({
       where: {
@@ -19,8 +17,6 @@ export default async (
 
     return res.status(200).end();
   } catch (e) {
-    console.log(e);
-
     return res.status(500).json({
       error: 'An error occurred deleting the ticket message from the database'
     });

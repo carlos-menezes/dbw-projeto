@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { randomBytes } from 'crypto';
 
 import { prisma } from '../../../services/db';
-import { Prisma } from '@prisma/client';
 import TicketCreateRequest from './types/TicketCreateRequest';
 import TicketCreateResponse from './types/TicketCreateResponse';
 

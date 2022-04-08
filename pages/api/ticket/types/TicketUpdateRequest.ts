@@ -1,4 +1,4 @@
-import { Ticket, TicketStatus } from '@prisma/client';
+import { Ticket } from '@prisma/client';
 
 type TicketUpdateRequest = {
   id: string;

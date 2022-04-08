@@ -8,8 +8,6 @@ const handler = async (
   res: NextApiResponse<QuestionDeleteResponse>
 ) => {
   const id = req.query.id as string;
-  console.log(id);
-
   try {
     await prisma.question.delete({
       where: {
