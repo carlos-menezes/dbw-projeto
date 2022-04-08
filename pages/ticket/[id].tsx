@@ -470,7 +470,7 @@ const TicketId = () => {
                               <ButtonSet>
                                 <Button
                                   kind="tertiary"
-                                  onClick={(_e) =>
+                                  onClick={(_) =>
                                     updateTicketMessageReply(m.id, !m.isReply)
                                   }
                                 >
@@ -480,7 +480,7 @@ const TicketId = () => {
                                 </Button>
                                 <Button
                                   kind="danger--tertiary"
-                                  onClick={(_e) => deleteTicketMessage(m.id)}
+                                  onClick={(_) => deleteTicketMessage(m.id)}
                                 >
                                   Delete
                                 </Button>
