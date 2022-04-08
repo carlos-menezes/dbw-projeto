@@ -116,7 +116,7 @@ const TicketId = () => {
   };
 
   const updateTicketStatus = (action: 'ASSIGN' | 'OPEN' | 'CLOSE') => {
-    let data: Partial<Ticket> = {
+    const data: Partial<Ticket> = {
       userId: user.id
     };
 
@@ -442,7 +442,7 @@ const TicketId = () => {
                         >
                           <Column>
                             <p>
-                              {!!m.userId ? (
+                              {m.userId ? (
                                 <>
                                   <span style={{ fontWeight: 700 }}>
                                     {m.user.firstName} {m.user.lastName}

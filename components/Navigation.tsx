@@ -16,7 +16,6 @@ import {
 } from 'carbon-components-react/lib/components/UIShell';
 import { CSSProperties, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import Link from 'next/link';
 import Router from 'next/router';
 
 const headerStyle: CSSProperties = {
@@ -61,7 +60,7 @@ const Navigation: React.FC = () => {
             <Login20 />
           </HeaderGlobalAction>
         )}
-        {isAuthenticated && (
+        {isAuthenticated && !loading && (
           <>
             <HeaderGlobalAction
               aria-label="Control Panel"
