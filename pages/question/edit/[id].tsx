@@ -5,8 +5,11 @@ import { FormEvent, useEffect, useState } from 'react';
 import DefaultErrorPage from 'next/error';
 import styled from 'styled-components';
 import {
+  Button,
+  Checkbox,
   Column,
   Form,
+  InlineNotification,
   Row,
   Select,
   SelectItem,
@@ -20,12 +23,18 @@ import Layout from '../../../components/Layout';
 import Grid from '../../../components/Grid';
 import FlexHeading from '../../../components/FlexHeading';
 import Divider from '../../../components/Divider';
+import FlexColumn from '../../../components/FlexColumn';
+import { api } from '../../../services/api';
+import QuestionUpdateResponse from '../../api/question/types/QuestionUpdateResponse';
+import QuestionUpdateRequest from '../../api/question/types/QuestionUpdateRequest';
+import Router from 'next/router';
+import { AxiosError } from 'axios';
 
 const EditQuestionForm = styled(Form)`
-  display: 'flex';
-  flex-direction: 'column';
-  justify-content: 'flex-start';
-  row-gap: '20px';
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  row-gap: 20px;
 `;
 
 type EditQuestionProps = {
@@ -37,21 +46,40 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
   question,
   categories
 }) => {
-  const [questionData, setQuestionData] = useState<Question | null>(question);
-  const [categoriesData, setCategoriesData] = useState<Category[] | null>(
-    categories
+  const [questionData, setQuestionData] = useState<Omit<Question, 'id'> | null>(
+    {
+      title: question.title,
+      description: question.description,
+      pinned: question.pinned,
+      categoryId: question.categoryId
+    }
   );
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log(questionData);
   }, [questionData]);
 
-  const handleFormSubmission = (e: FormEvent<HTMLFormElement>) => {};
+  const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    api
+      .put<QuestionUpdateResponse>('/api/question/update', {
+        id: question.id,
+        data: questionData
+      } as QuestionUpdateRequest)
+      .then((_) => {
+        Router.push('/faq');
+      })
+      .catch((err: AxiosError) => {
+        console.log(err.response?.data.error);
+        setError(err.response?.data.error);
+      });
+  };
 
   return questionData === null ? (
     <DefaultErrorPage statusCode={404} />
   ) : (
-    <Layout title={`Question #${questionData?.id}`}>
+    <Layout title={`Question #${question.id}`}>
       <Grid>
         <Row>
           <FlexHeading>
@@ -61,7 +89,9 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
 
         <Divider margin={10} />
 
-        <EditQuestionForm onSubmit={(e) => handleFormSubmission(e)}>
+        <EditQuestionForm
+          onSubmit={(e: FormEvent<HTMLFormElement>) => handleFormSubmission(e)}
+        >
           <Row>
             <Column>
               <TextInput
@@ -103,6 +133,21 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
                 ))}
               </Select>
             </Column>
+            <FlexColumn>
+              <Checkbox
+                height={'100%'}
+                title="Pinned"
+                checked={questionData.pinned}
+                id={'Pinned'}
+                labelText={'Pinned'}
+                onClick={() => {
+                  setQuestionData((state) => ({
+                    ...state,
+                    pinned: !state.pinned
+                  }));
+                }}
+              />
+            </FlexColumn>
           </Row>
           <Row>
             <Column>
@@ -119,7 +164,25 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
               />
             </Column>
           </Row>
+          <Row>
+            <Column>
+              <Button kind="primary" type="submit">
+                Submit
+              </Button>
+            </Column>
+          </Row>
         </EditQuestionForm>
+        {error && (
+          <Row>
+            <Column>
+              <InlineNotification
+                kind={'error'}
+                title={'Error'}
+                subtitle={error}
+              />
+            </Column>
+          </Row>
+        )}
       </Grid>
     </Layout>
   );

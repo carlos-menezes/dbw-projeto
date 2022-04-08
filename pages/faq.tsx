@@ -13,6 +13,9 @@ import {
 } from 'carbon-components-react';
 import Router from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGemoji from 'remark-gemoji';
+import remarkGfm from 'remark-gfm';
 import styled from 'styled-components';
 
 import Divider from '../components/Divider';
@@ -146,9 +149,13 @@ const FAQ: React.FC = () => {
                         >
                           <Row>
                             <Column>
-                              <JustifiedParagraph>
+                              {/* <JustifiedParagraph> */}
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGemoji, remarkGfm]}
+                              >
                                 {q.description}
-                              </JustifiedParagraph>
+                              </ReactMarkdown>
+                              {/* </JustifiedParagraph> */}
                             </Column>
                           </Row>
 
@@ -156,7 +163,13 @@ const FAQ: React.FC = () => {
                             <ActionRow>
                               <Column>
                                 <ButtonSet>
-                                  <Button size="small" kind="primary">
+                                  <Button
+                                    size="small"
+                                    kind="primary"
+                                    onClick={() =>
+                                      Router.push(`/question/edit/${q.id}`)
+                                    }
+                                  >
                                     Edit
                                   </Button>
                                   <Button
