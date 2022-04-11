@@ -343,7 +343,7 @@ const TicketId = () => {
                         />
                         <Button
                           kind="primary"
-                          onClick={(_e) => Router.push(`/ticket/${faqEntryId}`)}
+                          onClick={(_e) => Router.push(`/faq`)}
                         >
                           View
                         </Button>
