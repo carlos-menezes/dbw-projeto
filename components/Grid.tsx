@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Grid = styled(_Grid)`
-  max-width: ${(p: Props) => (p.maxWidth ? p.maxWidth : '672px')};
+  max-width: ${(p: Props) => (p.maxWidth ? p.maxWidth : '1056px')};
 `;
 
 export default Grid;
