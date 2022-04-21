@@ -1,5 +1,6 @@
 import { colors } from '@carbon/colors';
 import { Category, Ticket, TicketMessage, User } from '@prisma/client';
+import { AxiosError } from 'axios';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,29 +8,22 @@ import {
   ButtonSet,
   Column,
   Form,
-  Grid as CCGrid,
   InlineNotification,
   Loading,
-  Row as CCRow,
   Tag,
   TextArea,
   TextInput
 } from 'carbon-components-react';
 import Link from 'next/link';
 import Router, { useRouter } from 'next/router';
-import {
-  ChangeEventHandler,
-  FormEvent,
-  FormEventHandler,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Divider from '../../components/Divider';
+import Grid from '../../components/Grid';
+import JustifiedParagraph from '../../components/JustifiedParagraph';
 
 import Layout from '../../components/Layout';
+import Row from '../../components/FlexRow';
 import { AuthContext } from '../../contexts/AuthContext';
 import { api } from '../../services/api';
 import QuestionCreateRequest from '../api/question/types/QuestionCreateRequest';
@@ -41,30 +35,26 @@ import TicketMessageUpdateRequest from '../api/ticket/types/TicketMessageUpdateR
 import TicketMessageUpdateResponse from '../api/ticket/types/TicketMessageUpdateResponse';
 import TicketUpdateRequest from '../api/ticket/types/TicketUpdateRequest';
 import TicketUpdateResponse from '../api/ticket/types/TicketUpdateResponse';
+import FlexRow from '../../components/FlexRow';
+import FlexColumn from '../../components/FlexColumn';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkGemoji from 'remark-gemoji';
 
-const Grid = styled(CCGrid)`
-  max-width: 896px;
+const CommentCodeForm = styled(Form)`
+  row-gap: 10px;
 `;
 
-const Row = styled(CCRow)`
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const ActionColumn = styled(Column)`
-  display: flex;
-  align-items: center;
+const ActionColumn = styled(FlexColumn)`
   justify-content: flex-end;
   column-gap: 5px;
 `;
 
-const CommentsRow = styled(Row)`
-  margin-bottom: 10px;
+const CommentsHeader = styled(FlexRow)`
+  align-items: center;
 `;
 
-const TicketMessageRow = styled(CCRow)`
+const TicketMessageRow = styled(FlexRow)`
   background-clip: content-box;
   box-sizing: border-box;
   padding: 20px;
@@ -76,15 +66,9 @@ const TicketMessageRow = styled(CCRow)`
         ? colors.blue[20]
         : colors.gray[10]};
   text-align: justify;
-  display: flex;
   justify-content: space-around;
   flex-direction: column;
   row-gap: 10px;
-`;
-
-const JustifiedParagraph = styled.p`
-  text-align: justify;
-  word-wrap: break-word;
 `;
 
 const statusTagColor = {
@@ -126,14 +110,13 @@ const TicketId = () => {
       .then(({ data: { id } }) => {
         setFaqEntryId(id);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
   const updateTicketStatus = (action: 'ASSIGN' | 'OPEN' | 'CLOSE') => {
-    let data: Partial<Ticket> = {
+    const data: Partial<Ticket> = {
       userId: user.id
     };
 
@@ -156,9 +139,8 @@ const TicketId = () => {
       .then(({ data: { ticket } }) => {
         setTicketData(ticket);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -174,9 +156,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -186,9 +167,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -203,9 +183,8 @@ const TicketId = () => {
       .then(() => {
         Router.reload();
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       });
   };
 
@@ -231,9 +210,8 @@ const TicketId = () => {
       .then(({ data: { ticket } }) => {
         setTicketData(ticket);
       })
-      .catch((err) => {
-        const { message } = err as Error;
-        setError(message);
+      .catch((err: AxiosError) => {
+        setError(err.response.data);
       })
       .finally(() => {
         setInitialLoading(false);
@@ -255,7 +233,7 @@ const TicketId = () => {
               />
             ) : (
               <>
-                <Row>
+                <FlexRow>
                   <Column>
                     <Breadcrumb>
                       <BreadcrumbItem>Ticket</BreadcrumbItem>
@@ -269,12 +247,12 @@ const TicketId = () => {
                       </BreadcrumbItem>
                     </Breadcrumb>
                   </Column>
-                </Row>
-                <Row>
+                </FlexRow>
+                <FlexRow>
                   <Column>
                     <h2>{ticketData?.title}</h2>
                   </Column>
-                </Row>
+                </FlexRow>
                 <Row>
                   <Column sm={12} md={4} lg={4}>
                     <p>{ticketData?.email}</p>
@@ -294,10 +272,15 @@ const TicketId = () => {
                 <Row>
                   <Column>
                     <JustifiedParagraph>
-                      {ticketData?.description}
+                      <ReactMarkdown remarkPlugins={[remarkGfm, remarkGemoji]}>
+                        {ticketData?.description}
+                      </ReactMarkdown>
                     </JustifiedParagraph>
                   </Column>
                 </Row>
+
+                <Divider margin={5} />
+
                 <>
                   {isAuthenticated && (
                     <Row>
@@ -320,6 +303,7 @@ const TicketId = () => {
                             Create FAQ Entry
                           </Button>
                         )}
+
                         {ticketData.status === 'AVAILABLE' && (
                           <Button
                             kind="primary"
@@ -347,51 +331,67 @@ const TicketId = () => {
                       </ActionColumn>
                     </Row>
                   )}
+
+                  {/* FAQ creation notification */}
                   {faqEntryId && (
-                    <>
-                      <Row>
-                        <Column>
-                          <InlineNotification
-                            kind={'success'}
-                            title={'FAQ Entry Created'}
-                            subtitle={`FAQ entry created with ID ${faqEntryId}.`}
-                          />
-                        </Column>
-                      </Row>
-                    </>
+                    <Row>
+                      <FlexColumn>
+                        <InlineNotification
+                          kind={'success'}
+                          title={'Success!'}
+                          subtitle={`FAQ entry created`}
+                        />
+                        <Button
+                          kind="primary"
+                          onClick={(_e) => Router.push(`/faq`)}
+                        >
+                          View
+                        </Button>
+                      </FlexColumn>
+                    </Row>
                   )}
-                  <Divider margin={30} />
-                  <CommentsRow>
+
+                  <Divider margin={10} />
+
+                  <CommentsHeader>
                     <Column>
                       <h4>Comments ({ticketData?.messages.length})</h4>
                     </Column>
-                  </CommentsRow>
+                  </CommentsHeader>
+
+                  <Divider margin={5} />
 
                   {/* If user is not authenticated and the code hasn't been submitted yet, show the input. */}
                   {!isAuthenticated && !isTicketCreator && (
-                    <Form onSubmit={(e) => handleCommentCodeFormSubmission(e)}>
-                      <Row>
-                        <Column>
-                          <TextInput
-                            invalid={invalidCommentCode}
-                            invalidText={'Invalid comment code. '}
-                            onChange={(e) => setCommentCode(e.target.value)}
-                            id={'code'}
-                            placeholder={'Comment code'}
-                            labelText={''}
-                          />
-                        </Column>
-                        <Column>
-                          <Button type="submit" kind="primary" size="default">
-                            Submit
-                          </Button>
-                        </Column>
-                      </Row>
-                    </Form>
+                    <>
+                      <Form
+                        onSubmit={(e) => handleCommentCodeFormSubmission(e)}
+                      >
+                        <Row>
+                          <Column>
+                            <TextInput
+                              invalid={invalidCommentCode}
+                              invalidText={'Invalid comment code.'}
+                              onChange={(e) => setCommentCode(e.target.value)}
+                              id={'code'}
+                              placeholder={'Code'}
+                              labelText={''}
+                            />
+                          </Column>
+                          <Column>
+                            <Button type="submit" kind="primary" size="field">
+                              Submit
+                            </Button>
+                          </Column>
+                        </Row>
+                      </Form>
+                      <Divider margin={10} />
+                    </>
                   )}
 
                   {/* If the user is authenticated or the code has been submitted, allow the user to comment on the ticket EXCEPT if the ticket has been closed. */}
-                  {(isTicketCreator || isAuthenticated) &&
+                  {(isTicketCreator ||
+                    (isAuthenticated && ticketData.userId === user.id)) &&
                     ticketData.status !== 'CLOSED' && (
                       <Form onSubmit={handleCommentFormSubmission}>
                         <Row>
@@ -405,6 +405,7 @@ const TicketId = () => {
                             />
                           </Column>
                         </Row>
+                        <Divider margin={2} />
                         <Row>
                           <ActionColumn>
                             <Button
@@ -418,6 +419,8 @@ const TicketId = () => {
                         </Row>
                       </Form>
                     )}
+
+                  <Divider margin={10} />
 
                   {/* If the agent is authenticated and the ticket hasn't been assigned, prompt the agent to assign themselves the ticket. */}
                   {isAuthenticated && ticketData.userId === null && (
@@ -439,7 +442,7 @@ const TicketId = () => {
                         >
                           <Column>
                             <p>
-                              {!!m.userId ? (
+                              {m.userId ? (
                                 <>
                                   <span style={{ fontWeight: 700 }}>
                                     {m.user.firstName} {m.user.lastName}
@@ -453,7 +456,13 @@ const TicketId = () => {
                             <p>{new Date(m.createdAt).toUTCString()}</p>
                           </Column>
                           <Column>
-                            <p>{m.message}</p>
+                            <JustifiedParagraph>
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm, remarkGemoji]}
+                              >
+                                {m.message}
+                              </ReactMarkdown>
+                            </JustifiedParagraph>
                           </Column>
                           {/* Agents should be able to select a reply as the answer to the question. They are also ablet o delete a message. */}
                           {isAuthenticated && (
@@ -461,7 +470,7 @@ const TicketId = () => {
                               <ButtonSet>
                                 <Button
                                   kind="tertiary"
-                                  onClick={(_e) =>
+                                  onClick={(_) =>
                                     updateTicketMessageReply(m.id, !m.isReply)
                                   }
                                 >
@@ -471,7 +480,7 @@ const TicketId = () => {
                                 </Button>
                                 <Button
                                   kind="danger--tertiary"
-                                  onClick={(_e) => deleteTicketMessage(m.id)}
+                                  onClick={(_) => deleteTicketMessage(m.id)}
                                 >
                                   Delete
                                 </Button>

@@ -2,7 +2,6 @@ import {
   Button,
   Column,
   Form,
-  Grid,
   PasswordInput,
   Row,
   TextInput
@@ -10,23 +9,22 @@ import {
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
-import { CSSProperties, FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext, useState } from 'react';
+import styled from 'styled-components';
+import Divider from '../components/Divider';
 
+import FlexHeading from '../components/FlexHeading';
+import Grid from '../components/Grid';
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
 import { AUTH_TOKEN } from '../utils/constants';
 
-const gridStyle: CSSProperties = {
-  maxWidth: '672px'
-};
-
-const formStyle: CSSProperties = {
-  marginTop: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'flex-start',
-  rowGap: '20px'
-};
+const LoginForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  row-gap: 20px;
+`;
 
 type FormData = {
   email: string;
@@ -60,13 +58,16 @@ const Login = () => {
 
   return (
     <Layout title="Login">
-      <Grid style={gridStyle}>
+      <Grid>
         <Row>
-          <Column>
+          <FlexHeading>
             <h1>Login</h1>
-          </Column>
+          </FlexHeading>
         </Row>
-        <Form style={formStyle} onSubmit={(e) => handleFormSubmission(e)}>
+
+        <Divider margin={10} />
+
+        <LoginForm onSubmit={(e) => handleFormSubmission(e)}>
           <Row>
             <Column>
               <TextInput
@@ -113,7 +114,7 @@ const Login = () => {
               </Button>
             </Column>
           </Row>
-        </Form>
+        </LoginForm>
       </Grid>
     </Layout>
   );

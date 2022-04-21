@@ -1,10 +1,18 @@
-import { Heading } from 'carbon-components-react/lib/components/Heading';
+import { Row } from 'carbon-components-react';
+import FlexHeading from '../components/FlexHeading';
+import Grid from '../components/Grid';
 import Layout from '../components/Layout';
 
 const Index: React.FC = () => {
   return (
     <Layout title="Index">
-      <Heading>Index</Heading>
+      <Grid>
+        <Row>
+          <FlexHeading>
+            <h1>Index</h1>
+          </FlexHeading>
+        </Row>
+      </Grid>
     </Layout>
   );
 };

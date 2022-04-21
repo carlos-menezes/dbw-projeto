@@ -3,12 +3,10 @@ import {
   Column,
   FileUploader,
   Form,
-  Grid,
   InlineNotification,
   Row,
   Select,
   SelectItem,
-  SkeletonPlaceholder,
   SkeletonText,
   TextArea,
   TextInput
@@ -20,6 +18,7 @@ import {
   useEffect,
   useState
 } from 'react';
+import styled from 'styled-components';
 
 import Layout from '../../components/Layout';
 import { Category } from '@prisma/client';
@@ -29,18 +28,17 @@ import Link from 'carbon-components-react/lib/components/UIShell/Link';
 import CategoryResponse from '../api/category/types/CategoryResponse';
 import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
 import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
+import { AxiosError } from 'axios';
+import Grid from '../../components/Grid';
+import Divider from '../../components/Divider';
 
-const gridStyle: CSSProperties = {
-  maxWidth: '672px'
-};
-
-const formStyle: CSSProperties = {
-  marginTop: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'flex-start',
-  rowGap: '20px'
-};
+const CreateTicketForm = styled(Form)`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  row-gap: 20px;
+  column-gap: 20px;
+`;
 
 type FormData = {
   title: string;
@@ -72,15 +70,15 @@ const Create: React.FC = () => {
         setCategories(categories);
         setFormData((state) => ({ ...state, categoryId: categories[0].id }));
       })
-      .catch((err) => {
-        const { message: error } = err as Error;
-        setFormData((state) => ({ ...state, error }));
+      .catch((err: AxiosError) => {
+        setFormData((state) => ({ ...state, error: err.response.data }));
       })
       .finally(() => setInitialLoading(false));
   }, []);
 
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
 
     api
       .post<TicketCreateResponse>('/api/ticket/create', {
@@ -97,21 +95,26 @@ const Create: React.FC = () => {
         });
         setFormData((state) => ({ ...state, error: null }));
       })
-      .catch((err) => {
-        const { message: error } = err as Error;
-        setFormData((state) => ({ ...state, error }));
+      .catch((err: AxiosError) => {
+        setFormData((state) => ({ ...state, error: err.response.data }));
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   return (
     <Layout title="Create Ticket">
-      <Grid style={gridStyle}>
+      <Grid>
         <Row>
           <Column>
             <h1>Create Ticket</h1>
           </Column>
         </Row>
-        <Form style={formStyle} onSubmit={(e) => handleFormSubmission(e)}>
+
+        <Divider margin={10} />
+
+        <CreateTicketForm onSubmit={(e) => handleFormSubmission(e)}>
           <Row>
             <Column>
               {initialLoading || categories == null ? (
@@ -240,7 +243,7 @@ const Create: React.FC = () => {
               </Column>
             </Row>
           )}
-        </Form>
+        </CreateTicketForm>
       </Grid>
     </Layout>
   );

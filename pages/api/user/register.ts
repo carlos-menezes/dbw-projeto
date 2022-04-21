@@ -1,6 +1,6 @@
 import { prisma } from '../../../services/db';
 import bcrypt from 'bcryptjs';
-import { GetServerSideProps, NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import nookies from 'nookies';
 import { AUTH_TOKEN } from '../../../utils/constants';
 import { generateAuthToken } from '../../../utils/jwt';
@@ -40,12 +40,4 @@ export default async (
       error: 'An user with that email already exists'
     });
   }
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { [AUTH_TOKEN]: token } = nookies.get(context);
-
-  return {
-    props: {}
-  };
 };

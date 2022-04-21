@@ -1,6 +1,6 @@
 type QuestionCreateResponse = {
   id?: string;
-  message?: string;
+  error?: string;
 };
 
 export default QuestionCreateResponse;

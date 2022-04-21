@@ -2,7 +2,6 @@ import {
   Button,
   Column,
   Form,
-  Grid,
   PasswordInput,
   Row,
   TextInput
@@ -11,14 +10,13 @@ import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { parseCookies } from 'nookies';
 import { CSSProperties, FormEvent, useContext, useState } from 'react';
+import Divider from '../components/Divider';
+import FlexHeading from '../components/FlexHeading';
+import Grid from '../components/Grid';
 
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
 import { AUTH_TOKEN } from '../utils/constants';
-
-const gridStyle: CSSProperties = {
-  maxWidth: '672px'
-};
 
 const formStyle: CSSProperties = {
   marginTop: '20px',
@@ -58,12 +56,15 @@ const Register = () => {
 
   return (
     <Layout title="Register">
-      <Grid style={gridStyle}>
+      <Grid>
         <Row>
-          <Column>
+          <FlexHeading>
             <h1>Register</h1>
-          </Column>
+          </FlexHeading>
         </Row>
+
+        <Divider margin={10} />
+
         <Form style={formStyle} onSubmit={(e) => handleFormSubmission(e)}>
           <Row>
             <Column>
