@@ -56,10 +56,6 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
   );
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log(questionData);
-  }, [questionData]);
-
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     api
@@ -71,7 +67,6 @@ const EditQuestion: React.FC<EditQuestionProps> = ({
         Router.push('/faq');
       })
       .catch((err: AxiosError) => {
-        console.log(err.response?.data.error);
         setError(err.response?.data.error);
       });
   };
