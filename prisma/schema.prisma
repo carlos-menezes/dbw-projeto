@@ -50,11 +50,9 @@ model Ticket {
 
   messages TicketMessage[]
 
-  file   File?
-  fileId String? @db.ObjectId
-
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
+  fileId     String?  @db.ObjectId
 }
 
 model TicketMessage {
@@ -72,11 +70,4 @@ enum TicketStatus {
   OPEN
   CLOSED
   AVAILABLE
-}
-
-model File {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  data     String
-  ticket   Ticket @relation(fields: [ticketId], references: [id])
-  ticketId String @unique
 }

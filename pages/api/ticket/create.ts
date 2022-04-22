@@ -25,15 +25,7 @@ export default async (
           connect: {
             id: categoryId
           }
-        },
-        file:
-          fileData === null
-            ? undefined
-            : {
-                create: {
-                  data: fileData
-                }
-              }
+        }
       }
     });
 
@@ -42,7 +34,9 @@ export default async (
       commentCode
     });
   } catch (e) {
-    return res.status(500).json({
+    console.log(e);
+
+    return res.status(400).json({
       error: 'An error occurred inserting the ticket in the database'
     });
   }

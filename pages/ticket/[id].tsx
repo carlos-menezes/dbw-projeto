@@ -211,7 +211,9 @@ const TicketId = () => {
         setTicketData(ticket);
       })
       .catch((err: AxiosError) => {
-        setError(err.response.data);
+        console.log(err.response.data.error);
+
+        setError(err.response.data.error);
       })
       .finally(() => {
         setInitialLoading(false);
@@ -228,7 +230,7 @@ const TicketId = () => {
             {error ? (
               <InlineNotification
                 kind={'error'}
-                title={'An error occurred!'}
+                title={'Error!'}
                 subtitle={error}
               />
             ) : (

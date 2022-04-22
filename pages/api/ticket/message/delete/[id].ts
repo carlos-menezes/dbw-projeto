@@ -17,7 +17,7 @@ export default async (
 
     return res.status(200).end();
   } catch (e) {
-    return res.status(500).json({
+    return res.status(400).json({
       error: 'An error occurred deleting the ticket message from the database'
     });
   }

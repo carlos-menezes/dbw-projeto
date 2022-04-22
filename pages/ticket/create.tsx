@@ -45,8 +45,6 @@ type FormData = {
   description: string;
   email: string;
   categoryId: string;
-  file?: File;
-  error?: string;
 };
 
 const Create: React.FC = () => {
@@ -62,6 +60,7 @@ const Create: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -85,7 +84,6 @@ const Create: React.FC = () => {
         title: formData.title,
         description: formData.description,
         email: formData.email,
-        fileData: formData.file ? await formData.file.text() : null,
         categoryId: formData.categoryId
       } as TicketCreateRequest)
       .then(({ data: { id, commentCode } }) => {
@@ -93,10 +91,9 @@ const Create: React.FC = () => {
           id,
           commentCode
         });
-        setFormData((state) => ({ ...state, error: null }));
       })
       .catch((err: AxiosError) => {
-        setFormData((state) => ({ ...state, error: err.response.data }));
+        setError(err.response?.data);
       })
       .finally(() => {
         setLoading(false);
@@ -190,36 +187,7 @@ const Create: React.FC = () => {
           </Row>
           <Row>
             <Column>
-              <FileUploader
-                id="file"
-                accept={['.jpg', '.png', '.pdf']}
-                buttonKind="tertiary"
-                buttonLabel="Add files"
-                filenameStatus="edit"
-                iconDescription="Clear file"
-                labelDescription="only .jpg, .png or .pdf files at 1mb or less"
-                labelTitle="Upload"
-                onChange={(e) => {
-                  setFormData((state) => ({
-                    ...state,
-                    file: e.target.files[0]
-                  }));
-                }}
-                onDelete={(_) =>
-                  setFormData((state) => ({
-                    ...state,
-                    file: null
-                  }))
-                }
-              />
-            </Column>
-          </Row>
-          <Row>
-            <Column>
-              <Button
-                disabled={loading || initialLoading || !!ticketData}
-                type="submit"
-              >
+              <Button disabled={loading || !!ticketData} type="submit">
                 Submit
               </Button>
             </Column>
@@ -228,8 +196,8 @@ const Create: React.FC = () => {
             <Row>
               <Column>
                 <InlineNotification
-                  kind={formData.error ? 'error' : 'success'}
-                  title={formData.error ? formData.error : 'Ticket created!'}
+                  kind={error ? 'error' : 'success'}
+                  title={error ? error : 'Ticket created!'}
                   subtitle={
                     <Link href={`/ticket/${ticketData.id}`}>
                       Click here to check the status and use the code{' '}

@@ -29,7 +29,7 @@ const handler = async (
       id
     });
   } catch (e) {
-    return res.status(500).json({
+    return res.status(400).json({
       error: 'An error occurred inserting the question in the database'
     });
   }

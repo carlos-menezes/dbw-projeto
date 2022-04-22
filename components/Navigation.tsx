@@ -77,7 +77,12 @@ const Navigation: React.FC = () => {
                   Logged in as {user?.firstName?.concat(' ', user.lastName)}
                 </SwitcherItem>
                 <SwitcherDivider />
-                <SwitcherItem aria-label="Dashboard">Dashboard</SwitcherItem>
+                <SwitcherItem
+                  aria-label="Dashboard"
+                  onClick={() => Router.push('/dashboard')}
+                >
+                  Dashboard
+                </SwitcherItem>
                 <SwitcherItem aria-label="Logout" onClick={logout}>
                   Logout
                 </SwitcherItem>
