@@ -19,6 +19,7 @@
     "carbon-components-react": "^7.55.1",
     "carbon-icons": "^7.0.7",
     "d3": "^7.4.4",
+    "emoji-picker-react": "^3.5.1",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "next": "latest",

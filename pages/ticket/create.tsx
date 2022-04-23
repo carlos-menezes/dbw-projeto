@@ -1,7 +1,6 @@
 import {
   Button,
   Column,
-  FileUploader,
   Form,
   InlineNotification,
   Row,
@@ -11,26 +10,24 @@ import {
   TextArea,
   TextInput
 } from 'carbon-components-react';
-import {
-  CSSProperties,
-  FormEvent,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Picker from 'emoji-picker-react';
+import { Category } from '@prisma/client';
+import { AxiosError } from 'axios';
 
 import Layout from '../../components/Layout';
-import { Category } from '@prisma/client';
 import { api } from '../../services/api';
 import { AuthContext } from '../../contexts/AuthContext';
 import Link from 'carbon-components-react/lib/components/UIShell/Link';
 import CategoryResponse from '../api/category/types/CategoryResponse';
 import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
 import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
-import { AxiosError } from 'axios';
 import Grid from '../../components/Grid';
 import Divider from '../../components/Divider';
+import ReactMarkdown from 'react-markdown';
+import remarkGemoji from 'remark-gemoji';
+import remarkGfm from 'remark-gfm';
 
 const CreateTicketForm = styled(Form)`
   display: flex;
@@ -176,6 +173,7 @@ const Create: React.FC = () => {
               <TextArea
                 required
                 labelText={'Description'}
+                value={formData.description}
                 onChange={(e) => {
                   setFormData((state) => ({
                     ...state,
@@ -183,6 +181,18 @@ const Create: React.FC = () => {
                   }));
                 }}
               />
+            </Column>
+          </Row>
+          <Row>
+            <Column>
+              <label className="bx--label">Preview</label>
+              <Row>
+                <Column style={{ wordBreak: 'break-all' }}>
+                  <ReactMarkdown remarkPlugins={[remarkGemoji, remarkGfm]}>
+                    {formData.description}
+                  </ReactMarkdown>
+                </Column>
+              </Row>
             </Column>
           </Row>
           <Row>

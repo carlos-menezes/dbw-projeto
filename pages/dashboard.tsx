@@ -1,5 +1,7 @@
 import { Category, Ticket, TicketStatus } from '@prisma/client';
 import {
+  Button,
+  ButtonSet,
   Column,
   DataTable,
   Grid,
@@ -18,6 +20,7 @@ import { parseCookies } from 'nookies';
 import React, { useContext } from 'react';
 import View20 from '@carbon/icons-react/lib/view/20';
 import { PieChart } from '@carbon/charts-react';
+import styled from 'styled-components';
 
 import Divider from '../components/Divider';
 import FlexHeading from '../components/FlexHeading';
@@ -26,6 +29,7 @@ import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
 import { AUTH_TOKEN } from '../utils/constants';
 import { prisma } from '../services/db';
+import FlexColumn from '../components/FlexColumn';
 
 type DashboardProps = {
   tickets: (Ticket & { category: { title: string } })[];
@@ -45,6 +49,15 @@ const tableHeaders: { header: string; key: string }[] = [
   { header: 'Created At', key: 'createdAt' },
   { header: 'Actions', key: 'actions' }
 ];
+
+const ActionRow = styled(FlexRow)`
+  justify-content: flex-start;
+`;
+
+const ActionColumn = styled(FlexColumn)`
+  justify-content: flex-start;
+  gap: 2px;
+`;
 
 const CustomTable: React.FC<BuildDataTableProps> = ({
   title,
@@ -163,7 +176,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
             <Divider margin={10} />
 
             <Row>
-              <Column lg={5}>
+              <Column lg={4}>
                 {/* Personal Statistics */}
                 <h4>Personal Statistics</h4>
                 <Row>
@@ -250,6 +263,36 @@ const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
                     />
                   </Column>
                 </Row>
+
+                <Divider margin={15} />
+
+                <h4>Administration</h4>
+                <p>Categories</p>
+                <ActionRow>
+                  <ActionColumn>
+                    <Button size="2xl" kind="primary">
+                      Edit
+                    </Button>
+                    <Button size="2xl" kind="primary">
+                      Create
+                    </Button>
+                    <Button size="2xl" kind="danger--tertiary">
+                      Delete
+                    </Button>
+                  </ActionColumn>
+                </ActionRow>
+
+                <Divider margin={5} />
+
+                <p>Quick Replies</p>
+
+                <ActionRow>
+                  <ActionColumn>
+                    <ButtonSet>
+                      <Button kind="primary">Edit</Button>
+                    </ButtonSet>
+                  </ActionColumn>
+                </ActionRow>
               </Column>
 
               <Column>
