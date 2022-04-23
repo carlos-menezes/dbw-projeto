@@ -1,7 +1,6 @@
 import {
   Button,
   Column,
-  FileUploader,
   Form,
   InlineNotification,
   Row,
@@ -11,26 +10,24 @@ import {
   TextArea,
   TextInput
 } from 'carbon-components-react';
-import {
-  CSSProperties,
-  FormEvent,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Picker from 'emoji-picker-react';
+import { Category } from '@prisma/client';
+import { AxiosError } from 'axios';
 
 import Layout from '../../components/Layout';
-import { Category } from '@prisma/client';
 import { api } from '../../services/api';
 import { AuthContext } from '../../contexts/AuthContext';
 import Link from 'carbon-components-react/lib/components/UIShell/Link';
 import CategoryResponse from '../api/category/types/CategoryResponse';
 import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
 import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
-import { AxiosError } from 'axios';
 import Grid from '../../components/Grid';
 import Divider from '../../components/Divider';
+import ReactMarkdown from 'react-markdown';
+import remarkGemoji from 'remark-gemoji';
+import remarkGfm from 'remark-gfm';
 
 const CreateTicketForm = styled(Form)`
   display: flex;
@@ -45,8 +42,6 @@ type FormData = {
   description: string;
   email: string;
   categoryId: string;
-  file?: File;
-  error?: string;
 };
 
 const Create: React.FC = () => {
@@ -62,6 +57,7 @@ const Create: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api
@@ -85,7 +81,6 @@ const Create: React.FC = () => {
         title: formData.title,
         description: formData.description,
         email: formData.email,
-        fileData: formData.file ? await formData.file.text() : null,
         categoryId: formData.categoryId
       } as TicketCreateRequest)
       .then(({ data: { id, commentCode } }) => {
@@ -93,10 +88,9 @@ const Create: React.FC = () => {
           id,
           commentCode
         });
-        setFormData((state) => ({ ...state, error: null }));
       })
       .catch((err: AxiosError) => {
-        setFormData((state) => ({ ...state, error: err.response.data }));
+        setError(err.response?.data);
       })
       .finally(() => {
         setLoading(false);
@@ -179,6 +173,7 @@ const Create: React.FC = () => {
               <TextArea
                 required
                 labelText={'Description'}
+                value={formData.description}
                 onChange={(e) => {
                   setFormData((state) => ({
                     ...state,
@@ -190,36 +185,19 @@ const Create: React.FC = () => {
           </Row>
           <Row>
             <Column>
-              <FileUploader
-                id="file"
-                accept={['.jpg', '.png', '.pdf']}
-                buttonKind="tertiary"
-                buttonLabel="Add files"
-                filenameStatus="edit"
-                iconDescription="Clear file"
-                labelDescription="only .jpg, .png or .pdf files at 1mb or less"
-                labelTitle="Upload"
-                onChange={(e) => {
-                  setFormData((state) => ({
-                    ...state,
-                    file: e.target.files[0]
-                  }));
-                }}
-                onDelete={(_) =>
-                  setFormData((state) => ({
-                    ...state,
-                    file: null
-                  }))
-                }
-              />
+              <label className="bx--label">Preview</label>
+              <Row>
+                <Column style={{ wordBreak: 'break-all' }}>
+                  <ReactMarkdown remarkPlugins={[remarkGemoji, remarkGfm]}>
+                    {formData.description}
+                  </ReactMarkdown>
+                </Column>
+              </Row>
             </Column>
           </Row>
           <Row>
             <Column>
-              <Button
-                disabled={loading || initialLoading || !!ticketData}
-                type="submit"
-              >
+              <Button disabled={loading || !!ticketData} type="submit">
                 Submit
               </Button>
             </Column>
@@ -228,8 +206,8 @@ const Create: React.FC = () => {
             <Row>
               <Column>
                 <InlineNotification
-                  kind={formData.error ? 'error' : 'success'}
-                  title={formData.error ? formData.error : 'Ticket created!'}
+                  kind={error ? 'error' : 'success'}
+                  title={error ? error : 'Ticket created!'}
                   subtitle={
                     <Link href={`/ticket/${ticketData.id}`}>
                       Click here to check the status and use the code{' '}

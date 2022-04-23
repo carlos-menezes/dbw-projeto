@@ -27,8 +27,10 @@ export default async (
       ticket
     });
   } catch (e) {
-    return res.status(500).json({
-      error: 'An error occurred retrieving the ticket in the database'
+    console.log(e);
+
+    return res.status(400).json({
+      error: 'Ticket not found.'
     });
   }
 };

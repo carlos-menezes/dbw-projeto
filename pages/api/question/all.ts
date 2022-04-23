@@ -11,7 +11,7 @@ export default async (
     const questions = await prisma.question.findMany();
     return res.status(200).json({ questions });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       error: 'An error occurred retrieving questions from the database'
     });
   }

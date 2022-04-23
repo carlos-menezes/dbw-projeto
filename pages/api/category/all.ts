@@ -11,7 +11,7 @@ export default async (
     const categories = await prisma.category.findMany();
     return res.status(200).json({ categories });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(400).json({
       error: 'An error occurred retrieving categories from the database'
     });
   }
