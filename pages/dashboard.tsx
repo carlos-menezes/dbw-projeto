@@ -4,7 +4,6 @@ import {
   ButtonSet,
   Column,
   DataTable,
-  Grid,
   Link,
   Loading,
   Row,
@@ -30,6 +29,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { AUTH_TOKEN } from '../utils/constants';
 import { prisma } from '../services/db';
 import FlexColumn from '../components/FlexColumn';
+import Grid from '../components/Grid';
 
 type DashboardProps = {
   tickets: (Ticket & { category: { title: string } })[];
@@ -156,21 +156,23 @@ const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
 
   return (
     <Layout title="Dashboard">
-      <Grid>
+      <Grid maxWidth={'1056px'}>
         {!user ? (
           <Loading />
         ) : (
           <>
             <Row>
-              <FlexHeading>
-                <h1>
-                  Hello,{' '}
-                  <span style={{ fontWeight: 'bold' }}>
-                    {user.firstName.concat(' ', user.lastName)}
-                  </span>
-                  !
-                </h1>
-              </FlexHeading>
+              <Column>
+                <FlexHeading>
+                  <h1>
+                    Hello,{' '}
+                    <span style={{ fontWeight: 'bold' }}>
+                      {user.firstName.concat(' ', user.lastName)}
+                    </span>
+                    !
+                  </h1>
+                </FlexHeading>
+              </Column>
             </Row>
 
             <Divider margin={10} />

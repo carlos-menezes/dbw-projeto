@@ -21,7 +21,6 @@ import styled from 'styled-components';
 import Divider from '../components/Divider';
 import FlexHeading from '../components/FlexHeading';
 import Grid from '../components/Grid';
-import JustifiedParagraph from '../components/JustifiedParagraph';
 import Layout from '../components/Layout';
 import { AuthContext } from '../contexts/AuthContext';
 import { api } from '../services/api';
