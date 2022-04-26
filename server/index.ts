@@ -84,10 +84,11 @@ nextApp.prepare().then(async () => {
               id: room.id
             }
           });
-        } catch (error) {}
+          console.log('deleted room ' + room.id);
+        } catch (error) {
+          console.error('could not delete room');
+        }
       }
-
-      console.log('deleted room ' + room.id);
     });
   });
 
