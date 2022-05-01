@@ -19,6 +19,7 @@ model User {
   password       String
   tickets        Ticket[]
   ticketMessages TicketMessage[]
+  QuickReply     QuickReply[]
 }
 
 model Category {
@@ -79,4 +80,11 @@ model Room {
   title      String
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
+}
+
+model QuickReply {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  user        User   @relation(fields: [userId], references: [id])
+  description String
+  userId      String @db.ObjectId
 }

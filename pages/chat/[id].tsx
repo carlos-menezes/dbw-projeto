@@ -4,7 +4,8 @@ import {
   SkeletonPlaceholder,
   Form,
   TextArea,
-  Button
+  Button,
+  Tooltip
 } from 'carbon-components-react';
 import { GetServerSideProps } from 'next';
 import { FormEvent, useContext, useEffect, useRef, useState } from 'react';
@@ -22,6 +23,12 @@ import { colors } from '@carbon/colors';
 import FlexColumn from '../../components/FlexColumn';
 import ReactMarkdown from 'react-markdown';
 import remarkGemoji from 'remark-gemoji';
+import { AUTH_TOKEN } from '../../utils/constants';
+import { parseCookies } from 'nookies';
+import jwtDecode from 'jwt-decode';
+import { QuickReply, User } from '@prisma/client';
+import remarkGfm from 'remark-gfm';
+import FlexRow from '../../components/FlexRow';
 
 const MessageForm = styled(Form)`
   display: flex;
@@ -44,7 +51,7 @@ const UserMessage: React.FC<UserMessageProps> = ({
   return (
     <FlexColumn
       style={{
-        justifyContent: currentUser ? 'flex-end' : 'flex-start',
+        flex: 0,
         flexDirection: 'column',
         alignItems: 'flex-start',
         padding: '20px',
@@ -77,13 +84,15 @@ type ChatRoomProps = {
   categoryTitle: string;
   createdAt: string;
   error: boolean;
+  quickReplies?: QuickReply[];
 };
 
 const ChatRoom: React.FC<ChatRoomProps> = ({
   id,
   title,
   categoryTitle,
-  createdAt
+  createdAt,
+  quickReplies
 }) => {
   // This should be a set (`new Set()` but working with sets here is tricky; https://stackoverflow.com/a/58806947/3307678)
   const [users, setUsers] = useState<string[]>([]);
@@ -92,12 +101,18 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
 
   const socketRef = useRef<Socket | null>(null);
+  const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const {
     user: authenticatedUser,
     isAuthenticated,
     loading
   } = useContext(AuthContext);
+
+  useEffect(() => {
+    messagesRef.current.scrollTop =
+      messagesRef.current?.scrollHeight - messagesRef.current?.clientHeight;
+  }, [messages]);
 
   useEffect(() => {
     if (loading) {
@@ -180,11 +195,17 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
             <Row>
               <Column>
                 <div
+                  ref={messagesRef}
                   style={{
-                    minHeight: '500px',
+                    height: '450px',
+                    flex: 0,
+                    maxHeight: '450px',
+                    overflowY: 'scroll',
                     border: `1px solid ${colors.gray[10]}`,
                     wordBreak: 'break-word',
-                    padding: '10px'
+                    padding: '10px',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}
                 >
                   {messages.map((msg) => (
@@ -200,6 +221,32 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                 </div>
               </Column>
             </Row>
+
+            <Divider margin={5} />
+
+            <FlexRow
+              style={{
+                height: '100px',
+                flexWrap: 'wrap',
+                columnGap: '10px',
+                rowGap: '10px'
+              }}
+            >
+              {isAuthenticated &&
+                quickReplies !== null &&
+                quickReplies.map((reply) => (
+                  <FlexColumn style={{ flexBasis: '30%' }} key={reply.id}>
+                    <Button
+                      size="md"
+                      kind="tertiary"
+                      onClick={(e) => setMessage(reply.description)}
+                    >
+                      {reply.description.slice(0, 20)}
+                      {reply.description.length > 20 && '...'}
+                    </Button>
+                  </FlexColumn>
+                ))}
+            </FlexRow>
             <Divider margin={5} />
             <Row>
               <Column>
@@ -236,18 +283,16 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
             </Row>
           </Column>
 
-          <Column>
+          <Column sm={16} md={4} lg={4}>
             {users === null ? (
               <SkeletonPlaceholder />
             ) : (
               users.map((user) => (
                 <>
                   <FlexColumn
-                    sm={12}
-                    md={12}
-                    lg={8}
                     key={user}
                     style={{
+                      width: '100%',
                       backgroundColor:
                         user === currentUser
                           ? colors.green[10]
@@ -262,6 +307,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                 </>
               ))
             )}
+
+            <Divider margin={20} />
           </Column>
         </Row>
 
@@ -285,13 +332,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       include: { category: { select: { title: true } } }
     });
 
+    const { [AUTH_TOKEN]: token } = parseCookies(context);
+
+    let props = {
+      id,
+      title,
+      categoryTitle,
+      createdAt: createdAt.toISOString(),
+      quickReplies: null
+    };
+
+    if (token) {
+      const user = jwtDecode<User>(token);
+      const quickReplies = await prisma.quickReply.findMany({
+        where: { userId: user.id }
+      });
+      props.quickReplies = quickReplies;
+    }
+
     return {
-      props: {
-        id,
-        title,
-        categoryTitle,
-        createdAt: createdAt.toISOString()
-      }
+      props
     };
   } catch (error) {
     return {
