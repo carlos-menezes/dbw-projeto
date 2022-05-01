@@ -1,4 +1,4 @@
-import { Category, Ticket, TicketStatus } from '@prisma/client';
+import { Category, Room, Ticket, TicketStatus } from '@prisma/client';
 import {
   Button,
   ButtonSet,
@@ -18,6 +18,7 @@ import { GetServerSideProps } from 'next';
 import { parseCookies } from 'nookies';
 import React, { useContext } from 'react';
 import View20 from '@carbon/icons-react/lib/view/20';
+import ChatLaunch20 from '@carbon/icons-react/lib/chat--launch/20';
 import { PieChart } from '@carbon/charts-react';
 import styled from 'styled-components';
 
@@ -34,6 +35,7 @@ import Grid from '../components/Grid';
 type DashboardProps = {
   tickets: (Ticket & { category: { title: string } })[];
   categories: Category[];
+  rooms: (Room & { category: { title: string } })[];
 };
 
 type BuildDataTableProps = {
@@ -43,7 +45,9 @@ type BuildDataTableProps = {
   userId?: string;
 };
 
-const tableHeaders: { header: string; key: string }[] = [
+type TableHeader = { header: string; key: string };
+
+const tableHeaders: TableHeader[] = [
   { header: 'Title', key: 'title' },
   { header: 'Category', key: 'category' },
   { header: 'Created At', key: 'createdAt' },
@@ -52,11 +56,13 @@ const tableHeaders: { header: string; key: string }[] = [
 
 const ActionRow = styled(FlexRow)`
   justify-content: flex-start;
+  flex-direction: column;
+  gap: 5px;
 `;
 
 const ActionColumn = styled(FlexColumn)`
   justify-content: flex-start;
-  gap: 2px;
+  flex: 0 0 100%;
 `;
 
 const CustomTable: React.FC<BuildDataTableProps> = ({
@@ -110,7 +116,7 @@ const CustomTable: React.FC<BuildDataTableProps> = ({
                 )
                 .map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell style={{ width: '50%' }}>{row.title}</TableCell>
+                    <TableCell style={{ width: '35%' }}>{row.title}</TableCell>
                     <TableCell>{row.category.title}</TableCell>
                     <TableCell>{row.createdAt}</TableCell>
                     <TableCell>
@@ -134,7 +140,11 @@ const CustomTable: React.FC<BuildDataTableProps> = ({
   );
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  tickets,
+  categories,
+  rooms
+}) => {
   const { user } = useContext(AuthContext);
 
   const getUserCategoryStats = () => {
@@ -269,30 +279,16 @@ const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
                 <Divider margin={15} />
 
                 <h4>Administration</h4>
-                <p>Categories</p>
                 <ActionRow>
                   <ActionColumn>
-                    <Button size="2xl" kind="primary">
-                      Edit
-                    </Button>
-                    <Button size="2xl" kind="primary">
-                      Create
-                    </Button>
-                    <Button size="2xl" kind="danger--tertiary">
-                      Delete
+                    <Button style={{ width: '100%' }} disabled kind="primary">
+                      Edit Categories
                     </Button>
                   </ActionColumn>
-                </ActionRow>
-
-                <Divider margin={5} />
-
-                <p>Quick Replies</p>
-
-                <ActionRow>
                   <ActionColumn>
-                    <ButtonSet>
-                      <Button kind="primary">Edit</Button>
-                    </ButtonSet>
+                    <Button style={{ width: '100%' }} disabled kind="primary">
+                      Edit Quick Replies
+                    </Button>
                   </ActionColumn>
                 </ActionRow>
               </Column>
@@ -324,6 +320,64 @@ const Dashboard: React.FC<DashboardProps> = ({ tickets, categories }) => {
                   tickets={tickets}
                   ticketStatus={'CLOSED'}
                 />
+
+                <Divider margin={15} />
+
+                <Row>
+                  <Column>
+                    <h4>Live Chat Rooms</h4>
+                  </Column>
+                </Row>
+
+                <Divider margin={5} />
+
+                {rooms.length === 0 ? (
+                  <p>There are no open chat rooms at the moment.</p>
+                ) : (
+                  <DataTable rows={rooms} headers={tableHeaders}>
+                    {({}) => (
+                      <Table
+                        isSortable
+                        useZebraStyles
+                        title={'Live Chat Rooms'}
+                        size="md"
+                        style={{ wordBreak: 'break-all' }}
+                      >
+                        <TableHead>
+                          <TableRow>
+                            {tableHeaders.map((header) => (
+                              <TableHeader key={header.key}>
+                                {header.header}
+                              </TableHeader>
+                            ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rooms.map((row) => (
+                            <TableRow key={row.id}>
+                              <TableCell style={{ width: '30%' }}>
+                                {row.title}
+                              </TableCell>
+                              <TableCell>{row.category.title}</TableCell>
+                              <TableCell>{row.createdAt}</TableCell>
+                              <TableCell>
+                                <FlexRow>
+                                  <Column>
+                                    <Link
+                                      href={`/chat/${row.id}`}
+                                      renderIcon={ChatLaunch20}
+                                      about="View"
+                                    ></Link>
+                                  </Column>
+                                </FlexRow>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </DataTable>
+                )}
               </Column>
             </Row>
           </>
@@ -355,11 +409,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   });
   const categories = await prisma.category.findMany();
+  const rooms = await prisma.room.findMany({
+    include: {
+      category: {
+        select: {
+          title: true
+        }
+      }
+    }
+  });
 
   return {
     props: {
       tickets: JSON.parse(JSON.stringify(tickets)),
-      categories
+      categories,
+      rooms: JSON.parse(JSON.stringify(rooms))
     }
   };
 };

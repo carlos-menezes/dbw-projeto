@@ -32,7 +32,7 @@ nextApp.prepare().then(async () => {
         return;
       }
 
-      console.log('createRoom emitted');
+      console.log(`Room ${id} created`);
       rooms.push({ id, users: new Map() });
     });
 
@@ -40,12 +40,12 @@ nextApp.prepare().then(async () => {
       const room = rooms.filter((room) => room.id === id)[0];
       socket.join(id);
       room.users.set(name, socket);
-      console.log('createRoom emitted: ' + name);
+      console.log(`${name} joined ${id}`);
       io.in(id).emit('updateRoom', Array.from(room.users.keys()));
     });
 
     socket.on('messageSent', (id, message, user) => {
-      console.log(`${user} (${id}): ${message}`);
+      console.log(`[${id}] ${user}: ${message}`);
 
       io.in(id).emit('newMessage', message, user);
     });
@@ -61,17 +61,14 @@ nextApp.prepare().then(async () => {
       if (room === undefined) return;
 
       // Given that there is a mapping from an username to a socket, we can get the username of the user who disconnected by filtering the sockets and matching `socket` to the user's socket
-      const username = Array.from(room.users.entries()).filter(
+      const user = Array.from(room.users.entries()).filter(
         (user) => user[1] === socket
       )[0];
 
-      if (username === undefined) return;
+      if (user === undefined) return;
 
-      console.log(
-        'disconnect emitted for room ' + room.id + ' user ' + username
-      );
-
-      room.users.delete(username[0]);
+      console.log(`[${room.id} LEAVE] ${user[0]}`);
+      room.users.delete(user[0]);
 
       socket.broadcast
         .in(room.id)
@@ -84,7 +81,7 @@ nextApp.prepare().then(async () => {
               id: room.id
             }
           });
-          console.log('deleted room ' + room.id);
+          console.log(`[${room.id} DELETED]`);
         } catch (error) {
           console.error('could not delete room');
         }
