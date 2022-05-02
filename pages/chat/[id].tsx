@@ -5,10 +5,19 @@ import {
   Form,
   TextArea,
   Button,
-  Tooltip
+  Tooltip,
+  InlineNotification,
+  ButtonSet
 } from 'carbon-components-react';
 import { GetServerSideProps } from 'next';
-import { FormEvent, useContext, useEffect, useRef, useState } from 'react';
+import {
+  FormEvent,
+  MouseEventHandler,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import io, { Socket } from 'socket.io-client';
 import { generateUsername } from 'unique-username-generator';
 import styled from 'styled-components';
@@ -29,6 +38,10 @@ import jwtDecode from 'jwt-decode';
 import { QuickReply, User } from '@prisma/client';
 import remarkGfm from 'remark-gfm';
 import FlexRow from '../../components/FlexRow';
+import { api } from '../../services/api';
+import TicketCreateResponse from '../api/ticket/types/TicketCreateResponse';
+import TicketCreateRequest from '../api/ticket/types/TicketCreateRequest';
+import { AxiosError } from 'axios';
 
 const MessageForm = styled(Form)`
   display: flex;
@@ -41,13 +54,19 @@ type UserMessageProps = {
   user: string;
   message: string;
   currentUser: boolean;
+  onClickCreateTicket: () => Promise<void>;
+  onClickDeleteMessage: () => Promise<void>;
 };
 
 const UserMessage: React.FC<UserMessageProps> = ({
   user,
   message,
-  currentUser
+  currentUser,
+  onClickCreateTicket,
+  onClickDeleteMessage
 }) => {
+  const { isAuthenticated } = useContext(AuthContext);
+
   return (
     <FlexColumn
       style={{
@@ -72,6 +91,23 @@ const UserMessage: React.FC<UserMessageProps> = ({
           </p>
         </Column>
       </Row>
+      {isAuthenticated && (
+        <>
+          <Divider margin={5} />
+          <Row>
+            <Column>
+              <ButtonSet>
+                <Button kind="primary" onClick={onClickCreateTicket}>
+                  Create Ticket
+                </Button>
+                <Button kind="danger--tertiary" onClick={onClickDeleteMessage}>
+                  Delete
+                </Button>
+              </ButtonSet>
+            </Column>
+          </Row>
+        </>
+      )}
     </FlexColumn>
   );
 };
@@ -82,6 +118,7 @@ type ChatRoomProps = {
   id: string;
   title: string;
   categoryTitle: string;
+  categoryId: string;
   createdAt: string;
   error: boolean;
   quickReplies?: QuickReply[];
@@ -91,6 +128,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
   id,
   title,
   categoryTitle,
+  categoryId,
   createdAt,
   quickReplies
 }) => {
@@ -99,6 +137,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user } = useContext(AuthContext);
 
   const socketRef = useRef<Socket | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
@@ -132,7 +173,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
       } else {
         name = generateUsername('-');
       }
-      console.log(name);
 
       setCurrentUser(name);
       socket.emit('createRoom', id);
@@ -163,6 +203,30 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     setMessage('');
   };
 
+  const handleCreateTicket = async (title, description, categoryId) => {
+    api
+      .post<TicketCreateResponse>('/api/ticket/create', {
+        title,
+        description,
+        email: `generated-from-chat@protonx.io`,
+        categoryId
+      } as TicketCreateRequest)
+      .then(({ data: { id: ticketId, commentCode } }) => {
+        socketRef.current.emit(
+          'messageSent',
+          id,
+          `A new ticket was created from this live chat. Visit [${id}](/ticket/${ticketId}) and use code **${commentCode}** to comment.`,
+          currentUser
+        );
+      })
+      .catch((err: AxiosError) => {
+        console.log(err);
+
+        setError(err.response?.data);
+      });
+  };
+  const handleDeleteMessage = async (id: number) => {};
+
   return (
     <Layout title="Chat">
       <Grid>
@@ -174,6 +238,20 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
           </Column>
         </Row>
         <Divider margin={5} />
+        {error && (
+          <>
+            <Row>
+              <Column>
+                <InlineNotification
+                  kind={'error'}
+                  title={'ERROR'}
+                  subtitle={error}
+                />
+              </Column>
+            </Row>
+            <Divider margin={5} />
+          </>
+        )}
         <Row>
           <Column sm={6} md={4} lg={8}>
             <p>
@@ -208,11 +286,15 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                     flexDirection: 'column'
                   }}
                 >
-                  {messages.map((msg) => (
+                  {messages.map((msg, idx) => (
                     <>
                       <UserMessage
                         user={msg.user}
                         message={msg.message}
+                        onClickCreateTicket={() =>
+                          handleCreateTicket(title, msg.message, categoryId)
+                        }
+                        onClickDeleteMessage={() => handleDeleteMessage(idx)}
                         currentUser={msg.user === currentUser}
                       />
                       <Divider margin={5} />
@@ -235,7 +317,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
               {isAuthenticated &&
                 quickReplies !== null &&
                 quickReplies.map((reply) => (
-                  <FlexColumn style={{ flexBasis: '30%' }} key={reply.id}>
+                  <FlexColumn style={{ flex: '1 1 200px' }} key={reply.id}>
                     <Button
                       size="md"
                       kind="tertiary"
@@ -325,11 +407,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
       id,
       title,
-      category: { title: categoryTitle },
+      category: { title: categoryTitle, id: categoryId },
       createdAt
     } = await prisma.room.findUnique({
       where: { id: roomId },
-      include: { category: { select: { title: true } } }
+      include: { category: { select: { id: true, title: true } } }
     });
 
     const { [AUTH_TOKEN]: token } = parseCookies(context);
@@ -339,6 +421,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       title,
       categoryTitle,
       createdAt: createdAt.toISOString(),
+      categoryId,
       quickReplies: null
     };
 
