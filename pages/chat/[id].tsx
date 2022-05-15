@@ -225,7 +225,11 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
         setError(err.response?.data);
       });
   };
-  const handleDeleteMessage = async (id: number) => {};
+  const handleDeleteMessage = async (id: number) => {
+    const sliceBefore = messages.slice(0, id);
+    const sliceAfter = messages.slice(id + 1);
+    setMessages(sliceBefore.concat(sliceAfter));
+  };
 
   return (
     <Layout title="Chat">
