@@ -67,7 +67,7 @@ const Create: React.FC = () => {
         setFormData((state) => ({ ...state, categoryId: categories[0].id }));
       })
       .catch((err: AxiosError) => {
-        setFormData((state) => ({ ...state, error: err.response.data }));
+        setError(err.response?.data);
       })
       .finally(() => setInitialLoading(false));
   }, []);

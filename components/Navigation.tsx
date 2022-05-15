@@ -39,7 +39,7 @@ const Navigation: React.FC = () => {
       </HeaderName>
       <HeaderNavigation aria-label="ProtonX [Help]">
         <HeaderMenuItem href="/faq">FAQ</HeaderMenuItem>
-        <HeaderMenuItem href="/live">Live Chat</HeaderMenuItem>
+        <HeaderMenuItem href="/chat">Live Chat</HeaderMenuItem>
       </HeaderNavigation>
       <HeaderGlobalBar>
         <HeaderGlobalAction
