@@ -1,5 +1,4 @@
-import { Socket } from 'socket.io-client';
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import * as http from 'http';
 import next, { NextApiHandler } from 'next';
 import * as socketio from 'socket.io';
@@ -26,7 +25,7 @@ nextApp.prepare().then(async () => {
 
   io.on('connection', (socket: socketio.Socket) => {
     socket.on('createRoom', (id: string) => {
-      let room = rooms.filter((room) => room.id == id);
+      const room = rooms.filter((room) => room.id == id);
 
       if (room.length > 0) {
         return;
