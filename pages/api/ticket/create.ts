@@ -13,7 +13,7 @@ export default async (
   req: TicketCreateBody,
   res: NextApiResponse<TicketCreateResponse>
 ) => {
-  const { title, email, description, categoryId, fileData } = req.body;
+  const { title, email, description, categoryId } = req.body;
   try {
     const { id, commentCode } = await prisma.ticket.create({
       data: {
