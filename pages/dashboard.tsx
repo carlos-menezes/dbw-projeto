@@ -92,7 +92,7 @@ const CustomTable: React.FC<BuildDataTableProps> = ({
       <Divider margin={5} />
 
       <DataTable rows={tickets} headers={tableHeaders}>
-        {({}) => (
+        {() => (
           <Table
             isSortable
             useZebraStyles
@@ -148,10 +148,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const { user } = useContext(AuthContext);
 
   const getUserCategoryStats = () => {
-    let stats: { group: string; value: number }[] = [];
+    const stats: { group: string; value: number }[] = [];
 
     categories.forEach((c) => {
-      let numTicketsForUser = tickets.filter(
+      const numTicketsForUser = tickets.filter(
         (t) => t.categoryId === c.id && t.userId === user.id
       ).length;
 
@@ -335,7 +335,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <p>There are no open chat rooms at the moment.</p>
                 ) : (
                   <DataTable rows={rooms} headers={tableHeaders}>
-                    {({}) => (
+                    {() => (
                       <Table
                         isSortable
                         useZebraStyles

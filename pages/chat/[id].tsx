@@ -164,7 +164,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     socketRef.current = socket;
 
     const connectHandler = () => {
-      let name: string = '';
+      let name = '';
       if (isAuthenticated) {
         name = authenticatedUser.firstName.concat(
           ' ',
@@ -420,7 +420,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const { [AUTH_TOKEN]: token } = parseCookies(context);
 
-    let props = {
+    const props = {
       id,
       title,
       categoryTitle,
