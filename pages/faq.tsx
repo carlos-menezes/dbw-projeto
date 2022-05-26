@@ -143,7 +143,13 @@ const FAQ: React.FC = () => {
                       .map((q) => (
                         <PinnedAcordionItem
                           pinned={q.pinned}
-                          title={q.title}
+                          title={
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGemoji, remarkGfm]}
+                            >
+                              {q.title}
+                            </ReactMarkdown>
+                          }
                           // Pinned questions have a green top border
                         >
                           <Row>
