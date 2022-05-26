@@ -31,6 +31,7 @@ import { AUTH_TOKEN } from '../utils/constants';
 import { prisma } from '../services/db';
 import FlexColumn from '../components/FlexColumn';
 import Grid from '../components/Grid';
+import Router from 'next/router';
 
 type DashboardProps = {
   tickets: (Ticket & { category: { title: string } })[];
@@ -286,7 +287,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </Button>
                   </ActionColumn>
                   <ActionColumn>
-                    <Button style={{ width: '100%' }} disabled kind="primary">
+                    <Button
+                      style={{ width: '100%' }}
+                      kind="primary"
+                      onClick={() => Router.push('/quick-replies')}
+                    >
                       Edit Quick Replies
                     </Button>
                   </ActionColumn>
