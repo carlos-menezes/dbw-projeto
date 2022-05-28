@@ -323,7 +323,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <CustomTable
                   title={'Available Tickets'}
                   tickets={tickets}
-                  ticketStatus={'CLOSED'}
+                  ticketStatus={'AVAILABLE'}
                 />
 
                 <Divider margin={15} />
